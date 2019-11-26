@@ -1,0 +1,35 @@
+name: DP
+main: main.java.dp.plugin.Main
+version: 0.2
+author: Daniel_Allen
+api-version: 1.14
+load: POSTWORLD
+
+commands:
+  sayAs:
+  lore:
+      description: Sets the lore of the currently held item. Use "\n" for a newline, or "&" to format a color code. You can use a preceeding "\" to escape these.
+      usage: /lore Some text on line 1 \n &cSome red text on line 2
+  dpEnchant:
+      description: Enchants the currently held item. The argument 'max' will apply the maximum enchantment level available in Vanilla Minecraft, and the optional third true or false will specify if it should restrict the enchantments to ones that can normally be placed on the held item.
+      usage: /dpEnchant <level|max> [true|false]
+  findBlock:
+      description: Locate any instances of the block specified in the given radius (default 50).
+      usage: /findBlock <block> [radius]
+  toggleTransfer:
+      description: Toggle the fast-transfer mode. This is required to place blocks on interactable blocks.
+      usage: /toggleTransfer
+      aliases: [tt, toggleT, toggleFast, tFast]
+  dpdebug:
+      description: Toggles debugging mode for Daniel's Plugin.
+  sort:
+      description: Sorts the chest the player is looking at.
+  dpconfig:
+      description: Change the order of groups for sorting items.
+  tpLook:
+      description: Teleport to the position you are looking at.
+      usage: /tpLook [true|false] [max range]
+  class:
+      description: Select a class to equip in PvP.
+  pvp:
+      description: Join the PvP queue.
