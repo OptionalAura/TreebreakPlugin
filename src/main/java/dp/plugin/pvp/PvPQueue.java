@@ -72,7 +72,11 @@ public class PvPQueue implements Listener {
                 p.sendMessage("You are already in the queue.");
             }
             if (ready) {
-                startMatch();
+                if(queue.size() > 1){
+                    startMatch(true);
+                } else {
+                    startMatch(false);
+                }
             }
         } else {
             TextComponent msg = new TextComponent(ChatColor.WHITE + "You need to ");
@@ -90,7 +94,7 @@ public class PvPQueue implements Listener {
     private static boolean backedup = false;
     protected static int timer = 0;
 
-    public static void startMatch() {
+    public static void startMatch(boolean pvp) {
         if (pvpWorld == null) {
             pvpWorld = Main.thisPlugin.getServer().getWorld("superflat");
         }
@@ -139,7 +143,7 @@ public class PvPQueue implements Listener {
                 }
             };
             r.runTaskTimer(Main.thisPlugin, 10, 20);
-        } else if (queue.size() == 1) {
+        } else if (queue.size() == 1 && !pvp) {
             Location eastGate = new Location(pvpWorld, 42099, 64, 42069, 90, 0);
             Location westGate = new Location(pvpWorld, 42039, 64, 42069, -90, 0);
             final Player p1 = queue.pop();
@@ -249,12 +253,11 @@ public class PvPQueue implements Listener {
         Zombie z = (Zombie) w.spawnEntity(l, EntityType.ZOMBIE);
         z.setBaby(false);
         z.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(25 * Math.pow(2, level));
-        z.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(bpsToMovementSpeed(4 + level));
+        z.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(bpsToMovementSpeed(1 + (Math.log(level == 0 ? 1 : level)/Math.log(2))));
         z.setCustomName(ChatColor.GREEN + "Zombie " + ChatColor.DARK_PURPLE + "[Lvl. " + level + "]");
         z.setCustomNameVisible(true);
         z.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 1, true, false));
         z.setRemoveWhenFarAway(true);
         return z;
     }
-
 }

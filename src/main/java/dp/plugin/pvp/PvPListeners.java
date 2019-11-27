@@ -102,7 +102,7 @@ public class PvPListeners implements Listener {
                                     }
                                 }
                             };
-                            cooldown.runTaskLater(thisPlugin, 50);
+                            cooldown.runTaskLater(thisPlugin, 40);
                         }
                     } else {
                         if (!railgunCooldowns.contains(player.getUniqueId().toString())) {
@@ -160,7 +160,7 @@ public class PvPListeners implements Listener {
                                     wandCooldowns.remove(player.getUniqueId().toString());
                                 }
                             };
-                            cooldown.runTaskLater(thisPlugin, 40);
+                            cooldown.runTaskLater(thisPlugin, 15);
                         }
                     } else {
                         if (!wandCooldowns.contains(player.getUniqueId().toString())) {
@@ -177,7 +177,7 @@ public class PvPListeners implements Listener {
                                     fb.setDirection(player.getLocation().getDirection());
                                 }
                             };
-                            cooldown.runTaskLater(thisPlugin, 40);
+                            cooldown.runTaskLater(thisPlugin, 15);
                         }
                     }
                 }
