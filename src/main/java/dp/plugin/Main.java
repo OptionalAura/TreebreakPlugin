@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import main.java.dp.plugin.commands.Registry;
 import main.java.dp.plugin.commands.tabs.NearestBlockTabCompletion;
 import main.java.dp.plugin.data.DataSerializable;
+import main.java.dp.plugin.entities.EntityMoveEvent;
 import main.java.dp.plugin.features.FastTransfer;
 import main.java.dp.plugin.maps.EnchantmentData;
 import main.java.dp.plugin.maps.Groups;
@@ -64,6 +65,7 @@ public class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new ColoredNames(), this);
         Bukkit.getPluginManager().registerEvents(new PvPQueue(), this);
         Bukkit.getPluginManager().registerEvents(new PvPListeners(), this);
+
         try {
             getCommand("dpEnchant").setTabCompleter(new DPEnchantTabCompletion());
             getCommand("findblock").setTabCompleter(new NearestBlockTabCompletion());

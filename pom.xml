@@ -29,8 +29,8 @@
                 <version>3.5.1</version>
                 <configuration>
                     <finalName>DP</finalName>
-                    <source>9</source>
-                    <target>9</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -42,6 +42,12 @@
             <artifactId>spigot-api</artifactId>
             <version>1.14.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>craftbukkit</artifactId>
+            <version>1.13.2-R0.1-SNAPSHOT</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
     <properties>

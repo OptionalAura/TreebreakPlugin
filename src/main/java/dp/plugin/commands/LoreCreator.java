@@ -30,14 +30,16 @@ public class LoreCreator {
                     sb.append(args[args.length - 1]);
                     List<String> lore = new ArrayList<>();
                     for (String l : sb.toString().split("\\n")) {
-                        player.sendMessage("Found new line");
+                        Bukkit.getConsoleSender().sendMessage("Found line: " + l);
                         StringBuilder parsed = new StringBuilder(l.length());
                         char[] chars = l.toCharArray();
                         for (int z = 0; z < chars.length; z++) {
                             char cur = chars[z];
                             if (cur == '&') {
-                                if (z > 0 && chars[z - 1] != '\\') {
-                                    parsed.append("§");
+                                if (z > 0 && z < chars.length - 1 && chars[z - 1] != '\\') {
+                                    parsed.append(ChatColor.getByChar(chars[z+1]));
+                                } else if (z == 0 && z < chars.length - 1){
+                                    parsed.append(ChatColor.getByChar(chars[z+1]));
                                 } else {
                                     parsed.append("&");
                                 }
@@ -45,7 +47,6 @@ public class LoreCreator {
                                 parsed.append(cur);
                             }
                         }
-                        parsed.append("\n");
                         lore.add(parsed.toString());
                     }
                     ItemMeta heldMeta = heldItem.getItemMeta();

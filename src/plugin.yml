@@ -33,3 +33,7 @@ commands:
       description: Select a class to equip in PvP.
   pvp:
       description: Join the PvP queue.
+  pve:
+      description: Join the PvP queue to fight against a bot.
+  boomerTnt:
+      description: Change the fuse and yield of Boomer's TNT

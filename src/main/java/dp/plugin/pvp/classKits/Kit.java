@@ -12,6 +12,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 /*
     @author Daniel Allen
@@ -63,7 +64,9 @@ public class Kit {
     public Inventory applyToPlayer(Player p, boolean msg) {
         Inventory before = p.getInventory();
         p.getInventory().clear();
-        p.getActivePotionEffects().clear();
+        for(PotionEffect pe : p.getActivePotionEffects()){
+            p.removePotionEffect(pe.getType());
+        }
         p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
         p.setExhaustion(0);
         p.setFoodLevel(20);
