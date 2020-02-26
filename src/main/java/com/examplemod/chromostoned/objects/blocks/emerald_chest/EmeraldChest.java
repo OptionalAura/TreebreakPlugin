@@ -58,8 +58,10 @@ public class EmeraldChest extends BlockContainer implements IHasModel
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) 
 	{
-		
-		playerIn.openGui(TestingMod.instance, Reference.GUI_EMERALD_CHEST, worldIn, pos.getX(), pos.getY(), pos.getZ());
+		if(!worldIn.isRemote)
+		{
+			playerIn.openGui(TestingMod.instance, Reference.GUI_EMERALD_CHEST, worldIn, pos.getX(), pos.getY(), pos.getZ());
+		}
 		return true;
 		
 	}
