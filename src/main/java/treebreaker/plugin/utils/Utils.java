@@ -78,4 +78,85 @@ public class Utils {
         return sb.toString();
     }
 
+    /**
+     * Gets a string between two substrings of a larger string.
+     * <br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     * <b>Note:</b> {@code end} will only be searched for from the index of
+     * {@code start + start.length()}
+     *
+     * @param input Original string to search
+     * @param start The marker designating the start of the query
+     * @param end The marker designating the end of the query
+     * @return The string between {@code start} and {@code end}, or all
+     * characters after {@code start}
+     * @throws StringIndexOutOfBoundsException if
+     * <ol>
+     * <li>{@code input.indexOf(start)} &lt; 0</li>
+     * <li>{@code input.indexOf(start)} &gt;= {@code input.length}</li>
+     * <li>{@code input.indexOf(start)} &gt; {@code input.indexOf(end)}</li>
+     * </ol>
+     */
+    public static String stringBetween(String input, String start, String end) {
+        if (input == null || input.length() == 0) {
+            return input;
+        }
+
+        int startLength = start.length();
+
+        if (startLength >= input.length()) {
+            return "";
+        }
+
+        int startIndex = input.indexOf(start) + startLength;
+        int endIndex = input.indexOf(end, startIndex);
+
+        if (startIndex == -1 || startIndex >= input.length()) {
+            throw new StringIndexOutOfBoundsException("Start index out of bounds");
+        } else if (endIndex == -1) {
+            return input.substring(startIndex);
+        } else if (endIndex < startIndex) {
+            throw new StringIndexOutOfBoundsException("End index (" + endIndex + ") cannot be less than or equal to start index (" + startIndex + ")");
+        }
+
+        return input.substring(startIndex, endIndex);
+    }
+
+    
+    /**
+     * Gets a string between two substrings of a larger string.
+     * <br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     * <b>Note:</b> {@code end} will only be searched for from the index of
+     * {@code start + start.length()}
+     *
+     * @param input Original string to search
+     * @param start The marker designating the start of the query
+     * @return The string between {@code start} and {@code end}, or all
+     * characters after {@code start}
+     * @throws StringIndexOutOfBoundsException if
+     * <ol>
+     * <li>{@code input.indexOf(start)} &lt; 0</li>
+     * <li>{@code input.indexOf(start)} &gt;= {@code input.length}</li>
+     * <li>{@code input.indexOf(start)} &gt; {@code input.indexOf(end)}</li>
+     * </ol>
+     */
+    public static String stringAfter(String input, String start) {
+        if (input == null || input.length() == 0) {
+            return input;
+        }
+
+        int startLength = start.length();
+
+        if (startLength >= input.length()) {
+            return "";
+        }
+
+        int startIndex = input.indexOf(start) + startLength;
+
+        if (startIndex == -1 || startIndex >= input.length()) {
+            throw new StringIndexOutOfBoundsException("Start index out of bounds");
+        }
+        return input.substring(startIndex);
+    }
 }
