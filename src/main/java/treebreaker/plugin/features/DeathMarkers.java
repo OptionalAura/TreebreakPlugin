@@ -10,8 +10,8 @@ import main.java.treebreaker.plugin.Main;
 import main.java.treebreaker.plugin.misc.ActionBarAPI;
 import main.java.treebreaker.plugin.misc.Point2D;
 import main.java.treebreaker.plugin.misc.Vec2D;
-import main.java.treebreaker.plugin.utils.Scheduler;
 import static main.java.treebreaker.plugin.utils.Utils.getProperty;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,17 +19,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
 /**
  *
- * @author dsato
+ * @author Daniel Allen
  */
 public class DeathMarkers implements Listener {
 
     public static String DEATH_MARKER_ENABLED_TAG = "show_death_nametag",
             DEATH_MARKER_TIME_TAG = "death_marker_time_visible",
-            DEATH_COMPASS_ENABLED_TAG = "death_compass_enabled";
+            DEATH_COMPASS_ENABLED_TAG = "death_compass_enabled",
+            DEATH_LOCATION_MESSAGE_TAG = "death_location_message";
 
     private ConcurrentHashMap<Player, Location> deathCompassMap = new ConcurrentHashMap<>();
 
@@ -47,6 +47,10 @@ public class DeathMarkers implements Listener {
         }
         if (getProperty(DEATH_MARKER_ENABLED_TAG, true)) {
 
+        }
+        if (getProperty(DEATH_LOCATION_MESSAGE_TAG, true)) {
+            Location loc = event.getEntity().getLocation();
+            event.getEntity().sendMessage(ChatColor.DARK_RED + "Your death location: (" + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ")" + ChatColor.RESET);
         }
     }
 

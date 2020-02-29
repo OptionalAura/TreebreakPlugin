@@ -12,6 +12,7 @@ import main.java.treebreaker.plugin.features.DeathMarkers;
 import main.java.treebreaker.plugin.features.SilkSpawners;
 import main.java.treebreaker.plugin.features.TreeBreaker;
 import main.java.treebreaker.plugin.misc.ActionBarAPI;
+import main.java.treebreaker.plugin.misc.Events;
 import main.java.treebreaker.plugin.utils.Scheduler;
 import main.java.treebreaker.plugin.utils.Utils;
 import static main.java.treebreaker.plugin.utils.Utils.getProperty;
@@ -24,9 +25,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 
 /*
     @author Daniel Allen
@@ -46,6 +45,7 @@ public class Main extends JavaPlugin implements Listener {
         settingsConfig.set("colors." + ColoredNames.ALLOW_CHAT_COLORS_TAG, getProperty(ColoredNames.ALLOW_CHAT_COLORS_TAG, true));
         settingsConfig.set("colors." + ColoredNames.ALLOW_ITEM_COLORS_TAG, getProperty(ColoredNames.ALLOW_ITEM_COLORS_TAG, true));
 
+        settingsConfig.set("silkspawners." + SilkSpawners.SILK_SPAWNERS_ENABLED_TAG, getProperty(SilkSpawners.SILK_SPAWNERS_ENABLED_TAG, true));
         settingsConfig.set("silkspawners." + SilkSpawners.DROP_SPAWNERS_IN_CREATIVE_TAG, getProperty(SilkSpawners.DROP_SPAWNERS_IN_CREATIVE_TAG, true));
 
         settingsConfig.set("treecutter." + TreeBreaker.TREE_BREAK_ENABLED_TAG, getProperty(TreeBreaker.TREE_BREAK_ENABLED_TAG, true));
@@ -58,12 +58,15 @@ public class Main extends JavaPlugin implements Listener {
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_COMPASS_ENABLED_TAG, getProperty(DeathMarkers.DEATH_COMPASS_ENABLED_TAG, true));
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_MARKER_ENABLED_TAG, getProperty(DeathMarkers.DEATH_MARKER_ENABLED_TAG, true));
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_MARKER_TIME_TAG, getProperty(DeathMarkers.DEATH_MARKER_TIME_TAG, 300));
+        
+        settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, getProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
     }
 
     public static void loadSettings() {
         setProperty(ColoredNames.ALLOW_CHAT_COLORS_TAG, settingsConfig.getBoolean("colors." + ColoredNames.ALLOW_CHAT_COLORS_TAG, true));
         setProperty(ColoredNames.ALLOW_ITEM_COLORS_TAG, settingsConfig.getBoolean("colors." + ColoredNames.ALLOW_ITEM_COLORS_TAG, true));
 
+        setProperty(SilkSpawners.SILK_SPAWNERS_ENABLED_TAG, settingsConfig.getBoolean("silkspawners." + SilkSpawners.SILK_SPAWNERS_ENABLED_TAG, true));
         setProperty(SilkSpawners.DROP_SPAWNERS_IN_CREATIVE_TAG, settingsConfig.getBoolean("silkspawners." + SilkSpawners.DROP_SPAWNERS_IN_CREATIVE_TAG, true));
 
         setProperty(TreeBreaker.TREE_BREAK_ENABLED_TAG, settingsConfig.getBoolean("treecutter." + TreeBreaker.TREE_BREAK_ENABLED_TAG, true));
@@ -76,6 +79,7 @@ public class Main extends JavaPlugin implements Listener {
         setProperty(DeathMarkers.DEATH_COMPASS_ENABLED_TAG, settingsConfig.getBoolean("deathmarkers." + DeathMarkers.DEATH_COMPASS_ENABLED_TAG, true));
         setProperty(DeathMarkers.DEATH_MARKER_ENABLED_TAG, settingsConfig.getBoolean("deathmarkers." + DeathMarkers.DEATH_MARKER_ENABLED_TAG, true));
         setProperty(DeathMarkers.DEATH_MARKER_TIME_TAG, settingsConfig.getLong("deathmarkers." + DeathMarkers.DEATH_MARKER_TIME_TAG, 300));
+        setProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, settingsConfig.getBoolean("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
     }
 
     @Override
@@ -118,7 +122,7 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new SilkSpawners(), this);
         Bukkit.getPluginManager().registerEvents(new ColoredNames(), this);
         Bukkit.getPluginManager().registerEvents(new DeathMarkers(), this);
-        Bukkit.getPluginManager().registerEvents(new Main(), this);
+        Bukkit.getPluginManager().registerEvents(new Events(), this);
 
         Scheduler.setTimerTickSpeed(1000);
         ActionBarAPI.load();
@@ -144,8 +148,8 @@ public class Main extends JavaPlugin implements Listener {
             }
             br.close();
         } catch (IOException | NumberFormatException e) {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "Error detecting updates for Treebreaker ");
-            Bukkit.getConsoleSender().sendMessage(e.getLocalizedMessage());
+            Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "Error detecting updates for Treebreaker:" + ChatColor.RESET);
+            Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + e.getLocalizedMessage() + ChatColor.RESET);
         }
     }
 
@@ -166,12 +170,8 @@ public class Main extends JavaPlugin implements Listener {
     }
     private static boolean updateAvailable = false;
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        if (updateAvailable) {
-            if (event.getPlayer().isOp()) {
-                event.getPlayer().sendMessage("An update is available for Treebreaker!");
-            }
-        }
+    public static boolean isUpdateAvailable(){
+        return updateAvailable;
     }
+    
 }
