@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import main.java.treebreaker.plugin.features.ColoredNames;
 import main.java.treebreaker.plugin.features.DeathMarkers;
 import main.java.treebreaker.plugin.features.SilkSpawners;
@@ -19,6 +20,8 @@ import static main.java.treebreaker.plugin.utils.Utils.getProperty;
 import static main.java.treebreaker.plugin.utils.Utils.setProperty;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -173,5 +176,12 @@ public class Main extends JavaPlugin implements Listener {
     public static boolean isUpdateAvailable(){
         return updateAvailable;
     }
-    
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if(cmd.getName().equalsIgnoreCase("deathLocation")){
+            return DeathMarkers.onCommand(sender, cmd, label, args);
+        }
+        return true;
+    }
 }

@@ -122,7 +122,6 @@ public class Utils {
         return input.substring(startIndex, endIndex);
     }
 
-    
     /**
      * Gets a string between two substrings of a larger string.
      * <br>
@@ -158,5 +157,16 @@ public class Utils {
             throw new StringIndexOutOfBoundsException("Start index out of bounds");
         }
         return input.substring(startIndex);
+    }
+
+    public static final long ticksPerSecond = 20;
+
+    public static long ticksToMillis(long ticks) {
+        return 1000 * ticksPerSecond * ticks;
+    }
+    
+    public static Time getTimeFromMillis(long millis){
+        //idrk why I made this method
+        return new Time(millis);
     }
 }
