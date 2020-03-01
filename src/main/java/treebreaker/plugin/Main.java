@@ -7,14 +7,12 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import main.java.treebreaker.plugin.features.ColoredNames;
 import main.java.treebreaker.plugin.features.DeathMarkers;
 import main.java.treebreaker.plugin.features.SilkSpawners;
 import main.java.treebreaker.plugin.features.TreeBreaker;
 import main.java.treebreaker.plugin.misc.ActionBarAPI;
 import main.java.treebreaker.plugin.misc.Events;
-import main.java.treebreaker.plugin.utils.Scheduler;
 import main.java.treebreaker.plugin.utils.Utils;
 import static main.java.treebreaker.plugin.utils.Utils.getProperty;
 import static main.java.treebreaker.plugin.utils.Utils.setProperty;
@@ -128,7 +126,6 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new DeathMarkers(), this);
         Bukkit.getPluginManager().registerEvents(new Events(), this);
 
-        Scheduler.setTimerTickSpeed(1000);
         ActionBarAPI.load();
         try {
             String version = this.getDescription().getVersion();
@@ -177,7 +174,6 @@ public class Main extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        Scheduler.stopTimer();
         if (tickCounter != null) {
             tickCounter.cancel();
         }
