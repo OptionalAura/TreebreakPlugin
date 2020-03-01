@@ -95,6 +95,10 @@ public class Vec2D {
         return toDegrees(getAngleBetweenInRadians(other));
     }
 
+    public double getAngleBetweenInDegreesSigned(Vec2D other) {
+        return toDegrees(getAngleBetweenInRadiansSigned(other));
+    }
+    
     public double toDegrees(double radians) {
         return (180d / PI) * radians;
     }

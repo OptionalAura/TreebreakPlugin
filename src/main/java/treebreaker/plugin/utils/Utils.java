@@ -162,7 +162,7 @@ public class Utils {
     public static final long ticksPerSecond = 20;
 
     public static long ticksToMillis(long ticks) {
-        return 1000 * ticksPerSecond * ticks;
+        return (long)((1000d / ticksPerSecond) * ticks);
     }
     
     public static Time getTimeFromMillis(long millis){

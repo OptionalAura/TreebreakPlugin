@@ -29,6 +29,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /*
     @author Daniel Allen
@@ -61,7 +62,7 @@ public class Main extends JavaPlugin implements Listener {
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_COMPASS_ENABLED_TAG, getProperty(DeathMarkers.DEATH_COMPASS_ENABLED_TAG, true));
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_MARKER_ENABLED_TAG, getProperty(DeathMarkers.DEATH_MARKER_ENABLED_TAG, true));
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_MARKER_TIME_TAG, getProperty(DeathMarkers.DEATH_MARKER_TIME_TAG, 300));
-        
+
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, getProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
     }
 
@@ -131,11 +132,11 @@ public class Main extends JavaPlugin implements Listener {
         ActionBarAPI.load();
         try {
             String version = this.getDescription().getVersion();
-            if (version.matches("^[0-9]+$")) {
+            if (version.matches("^[0-9.]+$")) {
                 this.version = Double.parseDouble(version);
             }
-        } catch (Exception e){
-            
+        } catch (Exception e) {
+
         }
         try {
             URL updateCheckURL = new URL("https://raw.githubusercontent.com/OptionalAura/TreebreakPlugin/master/src/plugin.yml");
@@ -146,6 +147,7 @@ public class Main extends JavaPlugin implements Listener {
                     line = Utils.stringAfter(line, "version: ");
                     if (line.replaceAll("[^0-9.]", "").matches("^[0-9.]+$") && Double.parseDouble(line.replaceAll("[^0-9.]", "")) > this.version) {
                         updateAvailable = true;
+                        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "There is an update available for " + this.getDescription().getName());
                     }
                 }
             }
@@ -154,7 +156,20 @@ public class Main extends JavaPlugin implements Listener {
             Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "Error detecting updates for Treebreaker:" + ChatColor.RESET);
             Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + e.getLocalizedMessage() + ChatColor.RESET);
         }
+        if (tickCounter != null) {
+            tickCounter.cancel();
+        }
+        tickCounter = new BukkitRunnable() {
+            @Override
+            public void run() {
+                tick++;
+            }
+        };
+        tick = 0;
+        tickCounter.runTaskTimerAsynchronously(thisPlugin, 1, 1);
     }
+
+    private static BukkitRunnable tickCounter;
 
     public static BukkitScheduler getScheduler() {
         return bsc;
@@ -163,6 +178,9 @@ public class Main extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         Scheduler.stopTimer();
+        if (tickCounter != null) {
+            tickCounter.cancel();
+        }
         saveSettings();
         try {
             settingsConfig.save(settingsFile);
@@ -173,15 +191,21 @@ public class Main extends JavaPlugin implements Listener {
     }
     private static boolean updateAvailable = false;
 
-    public static boolean isUpdateAvailable(){
+    public static boolean isUpdateAvailable() {
         return updateAvailable;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if(cmd.getName().equalsIgnoreCase("deathLocation")){
+        if (cmd.getName().equalsIgnoreCase("deathLocation")) {
             return DeathMarkers.onCommand(sender, cmd, label, args);
         }
         return true;
+    }
+
+    private static long tick = 0;
+
+    public static long getCurrentTick() {
+        return tick;
     }
 }
