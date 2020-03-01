@@ -1,10 +1,11 @@
 name: Treebreaker
 main: main.java.treebreaker.plugin.Main
-version: 1.0
-author: Daniel Allen
+version: 1.1
+author: Steve
 api-version: 1.14
 load: STARTUP
 commands:
     deathLocation:
         description: Displays your last death location and the time remaining before your items expire
         usage: /deathLocation
+        aliases: [dl]

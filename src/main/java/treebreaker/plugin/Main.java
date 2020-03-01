@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import main.java.treebreaker.plugin.features.ColoredNames;
 import main.java.treebreaker.plugin.features.DeathMarkers;
 import main.java.treebreaker.plugin.features.SilkSpawners;
+import main.java.treebreaker.plugin.features.SleepFixes;
 import main.java.treebreaker.plugin.features.TreeBreaker;
 import main.java.treebreaker.plugin.misc.ActionBarAPI;
 import main.java.treebreaker.plugin.misc.Events;
@@ -39,7 +40,7 @@ public class Main extends JavaPlugin implements Listener {
     public static BukkitScheduler bsc;
     public static Plugin thisPlugin;
     //public static FileLock lock;
-    private static double version = 1.0;
+    private static double version = 1.1;
     public static File settingsFile;
     public static FileConfiguration settingsConfig;
 
@@ -60,8 +61,9 @@ public class Main extends JavaPlugin implements Listener {
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_COMPASS_ENABLED_TAG, getProperty(DeathMarkers.DEATH_COMPASS_ENABLED_TAG, true));
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_MARKER_ENABLED_TAG, getProperty(DeathMarkers.DEATH_MARKER_ENABLED_TAG, true));
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_MARKER_TIME_TAG, getProperty(DeathMarkers.DEATH_MARKER_TIME_TAG, 300));
-
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, getProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
+        
+        settingsConfig.set("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, getProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));    
     }
 
     public static void loadSettings() {
@@ -82,6 +84,8 @@ public class Main extends JavaPlugin implements Listener {
         setProperty(DeathMarkers.DEATH_MARKER_ENABLED_TAG, settingsConfig.getBoolean("deathmarkers." + DeathMarkers.DEATH_MARKER_ENABLED_TAG, true));
         setProperty(DeathMarkers.DEATH_MARKER_TIME_TAG, settingsConfig.getLong("deathmarkers." + DeathMarkers.DEATH_MARKER_TIME_TAG, 300));
         setProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, settingsConfig.getBoolean("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
+        
+        setProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, settingsConfig.getBoolean("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
     }
 
     @Override
@@ -124,6 +128,7 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new SilkSpawners(), this);
         Bukkit.getPluginManager().registerEvents(new ColoredNames(), this);
         Bukkit.getPluginManager().registerEvents(new DeathMarkers(), this);
+        Bukkit.getPluginManager().registerEvents(new SleepFixes(), this);
         Bukkit.getPluginManager().registerEvents(new Events(), this);
 
         ActionBarAPI.load();
