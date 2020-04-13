@@ -62,8 +62,8 @@ public class Main extends JavaPlugin implements Listener {
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_MARKER_ENABLED_TAG, getProperty(DeathMarkers.DEATH_MARKER_ENABLED_TAG, true));
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_MARKER_TIME_TAG, getProperty(DeathMarkers.DEATH_MARKER_TIME_TAG, 300));
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, getProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
-        
-        settingsConfig.set("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, getProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));    
+
+        settingsConfig.set("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, getProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
     }
 
     public static void loadSettings() {
@@ -84,7 +84,7 @@ public class Main extends JavaPlugin implements Listener {
         setProperty(DeathMarkers.DEATH_MARKER_ENABLED_TAG, settingsConfig.getBoolean("deathmarkers." + DeathMarkers.DEATH_MARKER_ENABLED_TAG, true));
         setProperty(DeathMarkers.DEATH_MARKER_TIME_TAG, settingsConfig.getLong("deathmarkers." + DeathMarkers.DEATH_MARKER_TIME_TAG, 300));
         setProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, settingsConfig.getBoolean("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
-        
+
         setProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, settingsConfig.getBoolean("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
     }
 
@@ -92,6 +92,7 @@ public class Main extends JavaPlugin implements Listener {
     public void onLoad() {
 
     }
+    private static String updateMessage = "";
 
     @Override
     public void onEnable() {
@@ -149,7 +150,8 @@ public class Main extends JavaPlugin implements Listener {
                     line = Utils.stringAfter(line, "version: ");
                     if (line.replaceAll("[^0-9.]", "").matches("^[0-9.]+$") && Double.parseDouble(line.replaceAll("[^0-9.]", "")) > this.version) {
                         updateAvailable = true;
-                        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "There is an update available for " + this.getDescription().getName());
+                        updateMessage = "There is an update available for " + this.getDescription().getName() + "(v. " + this.getDescription().getVersion() + " -> v. " + line.replaceAll("[^0-9.]", "") + ")";
+                        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + updateMessage + ChatColor.RESET);
                     }
                 }
             }
@@ -200,6 +202,28 @@ public class Main extends JavaPlugin implements Listener {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("deathLocation")) {
             return DeathMarkers.onCommand(sender, cmd, label, args);
+        } else if (cmd.getName().equalsIgnoreCase("treebreak") && sender.isOp()) {
+            try {
+                URL updateCheckURL = new URL("https://raw.githubusercontent.com/OptionalAura/TreebreakPlugin/master/src/plugin.yml");
+                BufferedReader br = new BufferedReader(new InputStreamReader(updateCheckURL.openStream()));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.startsWith("version: ")) {
+                        line = Utils.stringAfter(line, "version: ");
+                        if (line.replaceAll("[^0-9.]", "").matches("^[0-9.]+$") && Double.parseDouble(line.replaceAll("[^0-9.]", "")) > this.version) {
+                            updateAvailable = true;
+                            updateMessage = "There is an update available for " + this.getDescription().getName() + "(v. " + this.getDescription().getVersion() + " -> v. " + line.replaceAll("[^0-9.]", "") + ")";
+                            sender.sendMessage(ChatColor.GREEN + updateMessage + ChatColor.RESET);
+                        } else {
+                            sender.sendMessage("Using " + this.getDescription().getName() + " version " + this.getDescription().getVersion());
+                        }
+                    }
+                }
+                br.close();
+            } catch (IOException | NumberFormatException e) {
+                Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "Error detecting updates for Treebreaker:" + ChatColor.RESET);
+                Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + e.getLocalizedMessage() + ChatColor.RESET);
+            }
         }
         return true;
     }
@@ -208,5 +232,9 @@ public class Main extends JavaPlugin implements Listener {
 
     public static long getCurrentTick() {
         return tick;
+    }
+
+    public static String getUpdateMessage() {
+        return updateMessage;
     }
 }

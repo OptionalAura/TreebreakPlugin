@@ -20,7 +20,7 @@ public class Events implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (Main.isUpdateAvailable()) {
             if (event.getPlayer().isOp()) {
-                event.getPlayer().sendMessage(ChatColor.GREEN + "An update is available for Treebreaker!" + ChatColor.RESET);
+                event.getPlayer().sendMessage(ChatColor.GREEN + Main.getUpdateMessage() + ChatColor.RESET);
             }
         }
     }
