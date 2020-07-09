@@ -92,6 +92,7 @@ public class Main extends JavaPlugin implements Listener {
     public void onLoad() {
 
     }
+    private static String updateMessage = "";
 
     @Override
     public void onEnable() {
@@ -149,7 +150,8 @@ public class Main extends JavaPlugin implements Listener {
                     line = Utils.stringAfter(line, "version: ");
                     if (line.replaceAll("[^0-9.]", "").matches("^[0-9.]+$") && Double.parseDouble(line.replaceAll("[^0-9.]", "")) > this.version) {
                         updateAvailable = true;
-                        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "There is an update available for " + this.getDescription().getName());
+                        updateMessage = "There is an update available for " + this.getDescription().getName() + "(v. " + this.getDescription().getVersion() + " -> v. " + line.replaceAll("[^0-9.]", "") + ")";
+                        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + updateMessage + ChatColor.RESET);
                     }
                 }
             }
@@ -229,9 +231,33 @@ public class Main extends JavaPlugin implements Listener {
                         sender.sendMessage("All properties: " + Utils.getAllProperties());
                     }
                 }
+            } else if (cmd.getName().equalsIgnoreCase("treebreak") && sender.isOp()) {
+                try {
+                    URL updateCheckURL = new URL("https://raw.githubusercontent.com/OptionalAura/TreebreakPlugin/master/src/plugin.yml");
+                    BufferedReader br = new BufferedReader(new InputStreamReader(updateCheckURL.openStream()));
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        if (line.startsWith("version: ")) {
+                            line = Utils.stringAfter(line, "version: ");
+                            if (line.replaceAll("[^0-9.]", "").matches("^[0-9.]+$") && Double.parseDouble(line.replaceAll("[^0-9.]", "")) > this.version) {
+                                updateAvailable = true;
+                                updateMessage = "There is an update available for " + this.getDescription().getName() + "(v. " + this.getDescription().getVersion() + " -> v. " + line.replaceAll("[^0-9.]", "") + ")";
+                                sender.sendMessage(ChatColor.GREEN + updateMessage + ChatColor.RESET);
+                            } else {
+                                sender.sendMessage("Using " + this.getDescription().getName() + " version " + this.getDescription().getVersion());
+                            }
+                        }
+                    }
+                    br.close();
+                } catch (IOException | NumberFormatException e) {
+                    Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "Error detecting updates for Treebreaker:" + ChatColor.RESET);
+                    Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + e.getLocalizedMessage() + ChatColor.RESET);
+                }
             }
+            return true;
+        } else {
+            return false;
         }
-        return true;
     }
 
     private static long tick = 0;
@@ -261,5 +287,8 @@ public class Main extends JavaPlugin implements Listener {
             }
             return input.matches("[0-9]+$");
         }
+    }
+    public static String getUpdateMessage() {
+        return updateMessage;
     }
 }

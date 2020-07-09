@@ -61,11 +61,12 @@ public class Point2D {
     }
 
     /**
-     * Gets the distance squared from this point to (x, y). This avoids a costly
-     * square root function and should be used for comparisons with other
-     * lengths instead of {@link #getDistance(Point2D p)}
+     * Gets the distance squared from this point to (x, y).This avoids a costly
+ square root function and should be used for comparisons with other
+ lengths instead of {@link #getDistance(Point2D)}
      *
-     * @param p The second point
+     * @param x X-coordinate of point
+     * @param y Y-coordinate of point
      * @return The distance squared, equivalent to {@link #getDistance(Point2D p)}<code><sup>2</sup></code>
      * @see #distSquared(double x, double y)
      */
