@@ -5,11 +5,6 @@
  */
 package main.java.treebreaker.plugin.utils;
 
-/**
- *
- * @author dsato
- * @param <T>
- */
 public interface Criteria<T> {
 
     public boolean check(T... ts);

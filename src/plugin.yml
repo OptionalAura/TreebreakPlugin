@@ -9,3 +9,7 @@ commands:
         description: Displays your last death location and the time remaining before your items expire
         usage: /deathLocation
         aliases: [dl]
+    setProperty:
+        description: Sets a property in the Treebreaker plugin.
+        usage: /setProperty [property]
+        aliases: [sp]

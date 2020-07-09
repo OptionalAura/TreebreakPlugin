@@ -59,6 +59,10 @@ public class Utils {
         return false;
     }
 
+    public static boolean hasProperty(String property) {
+        return data.get(property) != null;
+    }
+
     public static String getAllProperties() {
         return joinList(new ArrayList(data.keySet()));
     }
@@ -162,10 +166,10 @@ public class Utils {
     public static final long ticksPerSecond = 20;
 
     public static long ticksToMillis(long ticks) {
-        return (long)((1000d / ticksPerSecond) * ticks);
+        return (long) ((1000d / ticksPerSecond) * ticks);
     }
-    
-    public static Time getTimeFromMillis(long millis){
+
+    public static Time getTimeFromMillis(long millis) {
         //idrk why I made this method
         return new Time(millis);
     }

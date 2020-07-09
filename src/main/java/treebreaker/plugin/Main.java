@@ -62,8 +62,8 @@ public class Main extends JavaPlugin implements Listener {
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_MARKER_ENABLED_TAG, getProperty(DeathMarkers.DEATH_MARKER_ENABLED_TAG, true));
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_MARKER_TIME_TAG, getProperty(DeathMarkers.DEATH_MARKER_TIME_TAG, 300));
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, getProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
-        
-        settingsConfig.set("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, getProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));    
+
+        settingsConfig.set("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, getProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
     }
 
     public static void loadSettings() {
@@ -84,7 +84,7 @@ public class Main extends JavaPlugin implements Listener {
         setProperty(DeathMarkers.DEATH_MARKER_ENABLED_TAG, settingsConfig.getBoolean("deathmarkers." + DeathMarkers.DEATH_MARKER_ENABLED_TAG, true));
         setProperty(DeathMarkers.DEATH_MARKER_TIME_TAG, settingsConfig.getLong("deathmarkers." + DeathMarkers.DEATH_MARKER_TIME_TAG, 300));
         setProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, settingsConfig.getBoolean("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
-        
+
         setProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, settingsConfig.getBoolean("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
     }
 
@@ -200,6 +200,36 @@ public class Main extends JavaPlugin implements Listener {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("deathLocation")) {
             return DeathMarkers.onCommand(sender, cmd, label, args);
+        } else if (cmd.getName().equalsIgnoreCase("setProperty")) {
+            if (sender.isOp()) {
+                if (args.length == 0 || args[0].equalsIgnoreCase("?") || args[0].isEmpty()) {
+                    sender.sendMessage("All properties: " + Utils.getAllProperties());
+                } else {
+                    if (Utils.hasProperty(args[0])) {
+                        if (args.length > 1) {
+                            Object val;
+                            switch (args[1].toUpperCase()) {
+                                case "FALSE":
+                                    val = false;
+                                case "TRUE":
+                                    val = true;
+                                    break;
+                                default:
+                                    if (isNumbersOnly(args[0], false, true, true, false)) {
+                                        val = Integer.parseInt(args[1]);
+                                    } else {
+                                        val = null;
+                                    }
+                            }
+                            Utils.setProperty(args[0], val);
+                        } else {
+                            sender.sendMessage("Property is currently: " + Utils.getProperty(args[0]).toString());
+                        }
+                    } else {
+                        sender.sendMessage("All properties: " + Utils.getAllProperties());
+                    }
+                }
+            }
         }
         return true;
     }
@@ -208,5 +238,28 @@ public class Main extends JavaPlugin implements Listener {
 
     public static long getCurrentTick() {
         return tick;
+    }
+
+    public static boolean isNumbersOnly(String input, boolean allowDecimals, boolean allowNegative, boolean allowInfinity, boolean allowEmpty) {
+        if (input == null) {
+            return false;
+        }
+        if (!allowEmpty && input.isEmpty()) {
+            return false;
+        }
+        if (allowInfinity && (input.equalsIgnoreCase("Infinite") || input.equalsIgnoreCase("Infinity") || input.equalsIgnoreCase("∞"))) {
+            return true;
+        }
+        if (allowDecimals) {
+            if (allowNegative) {
+                return input.matches("[0-9.-]+$");
+            }
+            return input.matches("[0-9.]+$");
+        } else {
+            if (allowNegative) {
+                return input.matches("[0-9-]+$");
+            }
+            return input.matches("[0-9]+$");
+        }
     }
 }
