@@ -87,8 +87,7 @@ public class Vec2D {
     }
 
     public double getAngleBetweenInRadiansSigned(Vec2D other) {
-        double thing = Math.atan2(this.getYDisplacement(), this.getXDisplacement()) - Math.atan2(other.getYDisplacement(), other.getXDisplacement());
-        return thing;
+        return Math.atan2(this.getYDisplacement(), this.getXDisplacement()) - Math.atan2(other.getYDisplacement(), other.getXDisplacement());
     }
     
     public double getAngleBetweenInDegrees(Vec2D other) {

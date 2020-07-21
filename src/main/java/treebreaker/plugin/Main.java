@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import main.java.treebreaker.plugin.features.ColoredNames;
@@ -40,7 +41,7 @@ public class Main extends JavaPlugin implements Listener {
     public static BukkitScheduler bsc;
     public static Plugin thisPlugin;
     //public static FileLock lock;
-    private static double version = 1.1;
+    private static double version = 1.16;
     public static File settingsFile;
     public static FileConfiguration settingsConfig;
 
@@ -200,7 +201,13 @@ public class Main extends JavaPlugin implements Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("deathLocation")) {
+        //if((boolean)getProperty("debug") == true){
+        //    sender.sendMessage("debug is active");
+        //}
+        if(sender.isOp()){
+            sender.sendMessage("Cmd: " + cmd.getName() + ", Args: " + Arrays.toString(args));
+        }
+        if (cmd.getName().equalsIgnoreCase("deathLocation") || cmd.getName().equalsIgnoreCase("track")) {
             return DeathMarkers.onCommand(sender, cmd, label, args);
         } else if (cmd.getName().equalsIgnoreCase("setProperty")) {
             if (sender.isOp()) {
@@ -209,21 +216,24 @@ public class Main extends JavaPlugin implements Listener {
                 } else {
                     if (Utils.hasProperty(args[0])) {
                         if (args.length > 1) {
-                            Object val;
                             switch (args[1].toUpperCase()) {
                                 case "FALSE":
-                                    val = false;
+                                    Utils.setProperty(args[0], false);
                                 case "TRUE":
-                                    val = true;
+                                    Utils.setProperty(args[0], true);
                                     break;
                                 default:
-                                    if (isNumbersOnly(args[0], false, true, true, false)) {
-                                        val = Integer.parseInt(args[1]);
-                                    } else {
-                                        val = null;
+                                    if (isNumbersOnly(args[1], false, false, true, false)) {
+                                        Utils.setProperty(args[0], Integer.parseInt(args[1]));
+                                    } else if (settingsConfig.getDefaults() != null) {
+                                        Object def = settingsConfig.getDefaults().get(args[0]);
+                                        if (def != null) {
+                                            Utils.setProperty(args[0], def);
+                                        }
                                     }
+                                    break;
                             }
-                            Utils.setProperty(args[0], val);
+
                         } else {
                             sender.sendMessage("Property is currently: " + Utils.getProperty(args[0]).toString());
                         }
@@ -288,6 +298,7 @@ public class Main extends JavaPlugin implements Listener {
             return input.matches("[0-9]+$");
         }
     }
+
     public static String getUpdateMessage() {
         return updateMessage;
     }
