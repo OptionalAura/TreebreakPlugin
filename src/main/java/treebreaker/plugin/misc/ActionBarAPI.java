@@ -8,6 +8,8 @@ package main.java.treebreaker.plugin.misc;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import main.java.treebreaker.plugin.Main;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -29,7 +31,8 @@ public class ActionBarAPI {
         if (!player.isOnline()) {
             return; // Player may have logged out
         }
-
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+        /*
         try {
             Class<?> craftPlayerClass = Class.forName("org.bukkit.craftbukkit." + nmsver + ".entity.CraftPlayer");
             Object craftPlayer = craftPlayerClass.cast(player);
@@ -61,8 +64,8 @@ public class ActionBarAPI {
             Method sendPacketMethod = playerConnection.getClass().getDeclaredMethod("sendPacket", packetClass);
             sendPacketMethod.invoke(playerConnection, packet);
         } catch (Exception e) {
-            e.printStackTrace();
-        }
+            
+        }*/
     }
 
     public static void sendActionBar(final Player player, final String message, int duration) {

@@ -1,6 +1,6 @@
 name: Treebreaker
 main: main.java.treebreaker.plugin.Main
-version: 1.16
+version: 1.16.4.0.1
 author: Steve
 api-version: 1.16
 load: STARTUP
@@ -15,4 +15,7 @@ commands:
         aliases: [sp]
     track:
         description: Does glitchy stuff
-            
+    mobCount:
+        description: Counts how many of a mob are in the game
+    EZEnchant:
+        description: Provides a convienient enchantment system

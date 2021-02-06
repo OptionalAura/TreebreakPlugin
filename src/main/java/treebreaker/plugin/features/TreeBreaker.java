@@ -36,7 +36,7 @@ public class TreeBreaker implements Listener {
             SNEAK_TO_BREAK_NORMALLY_TAG = "sneak_to_break_normally";
 
     public static long getMaxNum() {
-        return getProperty(MAX_TREES_BROKEN_TAG, 2048L);
+        return getProperty(MAX_TREES_BROKEN_TAG, 2048);
     }
 
     public static void setMaxNum(int max) {
@@ -56,7 +56,8 @@ public class TreeBreaker implements Listener {
         Material.STONE_AXE,
         Material.IRON_AXE,
         Material.GOLDEN_AXE,
-        Material.DIAMOND_AXE
+        Material.DIAMOND_AXE,
+        Material.NETHERITE_AXE
     };
 
     private static final Material[] LOGS = {
@@ -160,7 +161,7 @@ public class TreeBreaker implements Listener {
 
     int availableID = 0;
 
-    HashMap<Integer, Long> taskIDs = new HashMap<>();
+    static HashMap<Integer, Long> taskIDs = new HashMap<>();
 
     private int getAvailableTaskID() {
         int avail = availableID;
@@ -204,6 +205,7 @@ public class TreeBreaker implements Listener {
                             ItemStack itemInHand = p.getInventory().getItemInMainHand();
                             if (Utils.contains(AXES, itemInHand.getType())) {
                                 b.breakNaturally();
+                                ((Damageable) itemInHand).setDamage(((Damageable) itemInHand).getDamage() + 1);
                             }
                         } else {
                             b.breakNaturally();

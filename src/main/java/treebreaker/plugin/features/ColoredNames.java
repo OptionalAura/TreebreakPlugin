@@ -68,8 +68,7 @@ public class ColoredNames implements Listener {
     @EventHandler
     public void playerSendMessage(AsyncPlayerChatEvent event) {
         if (Utils.getProperty(ALLOW_CHAT_COLORS_TAG, true)) {
-            String translateAlternateColorCodes = ChatColor.translateAlternateColorCodes('&', event.getMessage().replaceAll("§", "&"));
-            event.setMessage(translateAlternateColorCodes + ChatColor.RESET);
+            event.setMessage(ChatColor.translateAlternateColorCodes('&', event.getMessage().replaceAll("§", "&")) + ChatColor.RESET);
         }
     }
 }

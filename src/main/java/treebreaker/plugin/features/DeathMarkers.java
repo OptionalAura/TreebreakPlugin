@@ -5,12 +5,9 @@
  */
 package main.java.treebreaker.plugin.features;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import main.java.treebreaker.plugin.Main;
 import main.java.treebreaker.plugin.misc.ActionBarAPI;
-import main.java.treebreaker.plugin.misc.Point2D;
-import main.java.treebreaker.plugin.misc.Vec2D;
 import main.java.treebreaker.plugin.utils.Time;
 import main.java.treebreaker.plugin.utils.Utils;
 import static main.java.treebreaker.plugin.utils.Utils.getProperty;
