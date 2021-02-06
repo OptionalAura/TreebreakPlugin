@@ -5,8 +5,6 @@
  */
 package main.java.treebreaker.plugin.misc;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import main.java.treebreaker.plugin.Main;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;

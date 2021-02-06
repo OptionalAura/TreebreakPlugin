@@ -41,7 +41,11 @@ public class UpdateNotifier implements Listener{
                             if (Main.version.compareTo(updatedVersion) == -1) {
                                 Main.updateAvailable = true;
                                 Main.updateMessage = "There is an update available for " + Main.thisPlugin.getName() + "(v. " + Main.version.getVersionString() + " -> v. " + line.replaceAll("[^0-9.]", "") + ")";
-                                Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + Main.updateMessage + ChatColor.RESET);
+                                event.getPlayer().sendMessage(ChatColor.RED + Main.updateMessage + ChatColor.RESET);
+                            } else {
+                                Main.updateAvailable = false;
+                                Main.updateMessage = "You have the latest verion of " + Main.thisPlugin.getName() + "(v. " + Main.version.getVersionString() + ")";
+                                event.getPlayer().sendMessage(ChatColor.GREEN + Main.updateMessage + ChatColor.RESET);
                             }
                         }
                     }

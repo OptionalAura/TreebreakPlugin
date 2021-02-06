@@ -298,7 +298,11 @@ public class Main extends JavaPlugin implements Listener {
                             if (Main.version.compareTo(updatedVersion) == -1) {
                                 updateAvailable = true;
                                 updateMessage = "There is an update available for " + this.getDescription().getName() + "(v. " + this.getDescription().getVersion() + " -> v. " + line.replaceAll("[^0-9.]", "") + ")";
-                                Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + updateMessage + ChatColor.RESET);
+                                sender.sendMessage(ChatColor.RED + updateMessage + ChatColor.RESET);
+                            } else {
+                                updateAvailable = false;
+                                updateMessage = "You have the latest verion of " + this.getDescription().getName() + "(v. " + this.getDescription().getVersion() + ")";
+                                sender.sendMessage(ChatColor.GREEN + updateMessage + ChatColor.RESET);
                             }
                         }
                     }

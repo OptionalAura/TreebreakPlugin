@@ -28,7 +28,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class EZEnchant {
 
     public static boolean run(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
-        if(!sender.isOp() && !sender.hasPermission(Permissions.getPerm("TreeEnchants"))){
+        if (!sender.isOp() && !sender.hasPermission(Permissions.getPerm("TreeEnchants"))) {
             return true;
         }
         if (args.length != 0) {
@@ -111,6 +111,10 @@ public class EZEnchant {
     }
 
     private static void ezenchant(Player sender, final ItemStack item) {
+        if (item == null || item.getType().equals(Material.AIR)) {
+            sender.sendMessage(ChatColor.RED + "You must be holding an item in your hand to do this" + ChatColor.RESET);
+            return;
+        }
         //get all enchantments
         List<Enchantment> list = new ArrayList<>(EnchantmentWrapper.values().length);
         list.addAll(Arrays.asList(EnchantmentWrapper.values()));
