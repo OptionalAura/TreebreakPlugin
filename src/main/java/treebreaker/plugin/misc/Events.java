@@ -5,7 +5,16 @@
  */
 package main.java.treebreaker.plugin.misc;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import main.java.treebreaker.plugin.Main;
+import static main.java.treebreaker.plugin.Main.updateAvailable;
+import static main.java.treebreaker.plugin.Main.updateMessage;
+import main.java.treebreaker.plugin.utils.Utils;
+import main.java.treebreaker.plugin.utils.Version;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,9 +27,26 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class Events implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (Main.isUpdateAvailable()) {
-            if (event.getPlayer().isOp()) {
-                event.getPlayer().sendMessage(ChatColor.GREEN + Main.getUpdateMessage() + ChatColor.RESET);
+        if(event.getPlayer().isOp()){
+            try {
+                URL updateCheckURL = new URL("https://raw.githubusercontent.com/OptionalAura/TreebreakPlugin/master/src/plugin.yml");
+                try ( BufferedReader br = new BufferedReader(new InputStreamReader(updateCheckURL.openStream()))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        if (line.startsWith("version: ")) {
+                            line = Utils.stringAfter(line, "version: ");
+                            Version updatedVersion = new Version(line);
+                            if (Main.version.compareTo(updatedVersion) == -1) {
+                                updateAvailable = true;
+                                updateMessage = "There is an update available for " + Main.thisPlugin.getName() + "(v. " + Main.thisPlugin.getDescription().getVersion() + " -> v. " + line.replaceAll("[^0-9.]", "") + ")";
+                                event.getPlayer().sendMessage(ChatColor.RED + updateMessage + ChatColor.RESET);
+                            }
+                        }
+                    }
+                }
+            } catch (IOException | NumberFormatException e) {
+                Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "Error detecting updates for Treebreaker:" + ChatColor.RESET);
+                Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + e.getLocalizedMessage() + ChatColor.RESET);
             }
         }
     }

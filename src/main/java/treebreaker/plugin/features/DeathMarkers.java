@@ -91,7 +91,7 @@ public class DeathMarkers implements Listener {
     
     private static void sendDeathLocationToPlayer(Player p){
         Location loc = (Location) targetCompassMap.get(p);
-        TextComponent deathText = new TextComponent(ChatColor.WHITE + "Your last death location was (" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")" + ChatColor.RESET);
+        TextComponent deathText = new TextComponent(ChatColor.WHITE + "Your last death location was " + ChatColor.GREEN + "(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")" + ChatColor.RESET);
         deathText.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tp @s " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ()));
         p.spigot().sendMessage(deathText);
     }
