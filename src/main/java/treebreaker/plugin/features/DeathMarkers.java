@@ -105,8 +105,7 @@ public class DeathMarkers implements Listener {
 
         }
         if (getProperty(DEATH_LOCATION_MESSAGE_TAG, true)) {
-            Location loc = event.getEntity().getLocation();
-            event.getEntity().sendMessage(ChatColor.DARK_RED + "Your death location: (" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")" + ChatColor.RESET);
+            sendDeathLocationToPlayer(p);
         }
     }
 
