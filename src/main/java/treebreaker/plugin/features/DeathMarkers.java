@@ -11,6 +11,8 @@ import main.java.treebreaker.plugin.misc.ActionBarAPI;
 import main.java.treebreaker.plugin.utils.Time;
 import main.java.treebreaker.plugin.utils.Utils;
 import static main.java.treebreaker.plugin.utils.Utils.getProperty;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -46,20 +48,20 @@ public class DeathMarkers implements Listener {
                             Location loc = (Location) targetCompassMap.get((Player) sender);
                             if (timeRemaining <= 0) {
                                 if (loc != null) {
-                                    sender.sendMessage(ChatColor.DARK_RED + "Your last death location was (" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")" + ChatColor.RESET);
+                                    sendDeathLocationToPlayer((Player) sender);
                                     sender.sendMessage(ChatColor.DARK_RED + "Your items have already despawned");
                                 }
                             } else {
                                 if (loc != null) {
-                                    sender.sendMessage(ChatColor.DARK_RED + "Your last death location was (" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")" + ChatColor.RESET);
+                                    sendDeathLocationToPlayer((Player) sender);
                                     Time time = new Time(Utils.ticksToMillis(timeRemaining));
                                     time.setShouldPrintMilliseconds(false);
-                                    sender.sendMessage(ChatColor.DARK_RED + "Your items will despawn in " + time + ChatColor.RESET);
+                                    sender.sendMessage(ChatColor.RED + "Your items will despawn in " + time + ChatColor.RESET);
                                 }
                             }
                         }
                     } else {
-                        sender.sendMessage(ChatColor.DARK_RED + "You don't have a previous death location saved!" + ChatColor.RESET);
+                        sendDeathLocationToPlayer((Player) sender);
                     }
                     return true;
                 case "track":
@@ -86,7 +88,14 @@ public class DeathMarkers implements Listener {
         long curTime = Main.getCurrentTick();
         return 20 * getProperty(DEATH_MARKER_TIME_TAG, 300L) - (curTime - deathTime);
     }
-
+    
+    private static void sendDeathLocationToPlayer(Player p){
+        Location loc = (Location) targetCompassMap.get(p);
+        TextComponent deathText = new TextComponent(ChatColor.WHITE + "Your last death location was (" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")" + ChatColor.RESET);
+        deathText.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tp @s " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ()));
+        p.spigot().sendMessage(deathText);
+    }
+    
     @EventHandler
     public void onPlayerDeath(final PlayerDeathEvent event) {
         final Player p = event.getEntity();
@@ -134,7 +143,20 @@ public class DeathMarkers implements Listener {
                                 sb.append(".");
                             }
                         }
-                        ActionBarAPI.sendActionBar(p, sb.toString());
+                        ChatColor actionbarColor = ChatColor.WHITE;
+                        long ticks = getTicksRemainingBeforeItemsDespawn(p);
+                        if(ticks < 4800){
+                            actionbarColor = ChatColor.GOLD;
+                        } else if(ticks < 3600){
+                            actionbarColor = ChatColor.YELLOW;
+                        } else if(ticks < 2400){
+                            actionbarColor = ChatColor.RED;
+                        } else if(ticks < 1200){
+                            actionbarColor = ChatColor.DARK_RED;
+                        } else if(ticks < 600){
+                            actionbarColor = ChatColor.BLACK;
+                        }
+                        ActionBarAPI.sendActionBar(p, actionbarColor + sb.toString() + ChatColor.RESET);
                     }
                 }
             }

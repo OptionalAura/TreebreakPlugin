@@ -33,7 +33,7 @@ public class EZEnchant {
         }
         if (args.length != 0) {
             if (args.length == 1) {
-                sender.sendMessage(ChatColor.RED + "Improper format. Use /enchant <Enchantment> <Level> [Player]" + ChatColor.RESET);
+                sender.sendMessage(ChatColor.RED + "Improper format. Use /ezenchant <Enchantment> <Level> [Player]" + ChatColor.RESET);
                 return true;
             }
             Enchantment ench = null;
@@ -135,7 +135,7 @@ public class EZEnchant {
             TextComponent enchTextComp = new TextComponent((ench.canEnchantItem(item) ? ChatColor.DARK_GREEN : (item.getType().equals(Material.BOW) && ench.equals(Enchantment.MULTISHOT)) ? ChatColor.DARK_GREEN : ChatColor.WHITE) + WordUtils.capitalizeFully(ench.getKey().getKey(), new char[]{' ', '_'}).replaceAll("_", " ") + " ");
             for (int z = 0; z <= ench.getMaxLevel(); z++) {
                 TextComponent levelText = new TextComponent((levelApplied == z ? ChatColor.WHITE : ChatColor.GRAY) + "" + z + " ");
-                levelText.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/enchant " + ench.getKey().getKey() + " " + z + " -"));
+                levelText.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ezenchant " + ench.getKey().getKey() + " " + z + " -"));
                 enchTextComp.addExtra(levelText);
             }
             sender.spigot().sendMessage(enchTextComp);

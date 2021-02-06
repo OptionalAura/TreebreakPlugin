@@ -286,7 +286,7 @@ public class Main extends JavaPlugin implements Listener {
                     }
                 }
             }
-        } else if (cmd.getName().equalsIgnoreCase("treebreak") && sender.isOp()) {
+        } else if (cmd.getName().equalsIgnoreCase("treebreaker") && sender.isOp()) {
             try {
                 URL updateCheckURL = new URL("https://raw.githubusercontent.com/OptionalAura/TreebreakPlugin/master/src/plugin.yml");
                 try ( BufferedReader br = new BufferedReader(new InputStreamReader(updateCheckURL.openStream()))) {
