@@ -19,6 +19,7 @@ import main.java.treebreaker.plugin.features.TreeBreaker;
 import main.java.treebreaker.plugin.misc.ActionBarAPI;
 import main.java.treebreaker.plugin.misc.Events;
 import main.java.treebreaker.plugin.misc.Permissions;
+import main.java.treebreaker.plugin.misc.UpdateNotifier;
 import main.java.treebreaker.plugin.utils.Utils;
 import static main.java.treebreaker.plugin.utils.Utils.getProperty;
 import static main.java.treebreaker.plugin.utils.Utils.setProperty;
@@ -46,15 +47,15 @@ public class Main extends JavaPlugin implements Listener {
     public static BukkitScheduler bsc;
     public static Plugin thisPlugin;
     //public static FileLock lock;
-    private static Version version;
+    public static Version version;
     public static File settingsFile;
     public static FileConfiguration settingsConfig;
 
-    private static String updateMessage = "";
+    public static String updateMessage = "";
 
     private static BukkitRunnable tickCounter;
 
-    private static boolean updateAvailable = false;
+    public static boolean updateAvailable = false;
 
     private static long tick = 0;
 
@@ -178,7 +179,9 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         Permissions.load();
-
+        ActionBarAPI.load();
+        
+        Bukkit.getPluginManager().registerEvents(new UpdateNotifier(), this);
         Bukkit.getPluginManager().registerEvents(new TreeBreaker(), this);
         Bukkit.getPluginManager().registerEvents(new SilkSpawners(), this);
         Bukkit.getPluginManager().registerEvents(new ColoredNames(), this);
@@ -186,7 +189,7 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new SleepFixes(), this);
         Bukkit.getPluginManager().registerEvents(new Events(), this);
 
-        ActionBarAPI.load();
+        
         try {
             String currentVersion = this.getDescription().getVersion();
             if (currentVersion.matches("^[0-9.]+$")) {
@@ -316,4 +319,5 @@ public class Main extends JavaPlugin implements Listener {
         }
         return true;
     }
+    
 }

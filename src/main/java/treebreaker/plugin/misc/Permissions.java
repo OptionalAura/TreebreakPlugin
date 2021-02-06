@@ -14,7 +14,7 @@ public class Permissions {
     static HashMap<String, Permission> perms = new HashMap();
     public static void load(){
         pm = getServer().getPluginManager();
-        definePerm("treebreaker.EZEnchant.allowed");
+        definePerm("TreeEnchants");
     }
     public static void definePerm(String name){
         if(!perms.containsKey(name)){

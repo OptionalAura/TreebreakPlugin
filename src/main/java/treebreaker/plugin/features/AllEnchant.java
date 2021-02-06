@@ -31,7 +31,7 @@ public class AllEnchant {
             return true;
         }
         if (args.length < 1 || args.length > 2) {
-            ((Player) player).sendMessage("§c:Error: §4Incorrect format. Use §a/dpEnchant <level|\"max\"> [unsafe?] ");
+            ((Player) player).sendMessage("§c:Error: §4Incorrect format. Use §a/allEnchant <level|\"max\"> [unsafe?] ");
             return true;
         }
         ItemStack holding = ((Player) player).getInventory().getItemInMainHand();

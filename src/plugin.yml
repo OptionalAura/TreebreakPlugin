@@ -1,10 +1,12 @@
 name: Treebreaker
 main: main.java.treebreaker.plugin.Main
-version: 1.16.4.1
+version: 1.16.4.1.1
 author: Daniel Allen
 api-version: 1.16
 load: STARTUP
 commands:
+    treebreaker:
+        description: Checks for updates
     deathLocation:
         description: Displays your last death location and the time remaining before your items expire
         usage: /deathLocation
