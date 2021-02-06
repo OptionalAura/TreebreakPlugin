@@ -143,18 +143,20 @@ public class DeathMarkers implements Listener {
                                 sb.append(".");
                             }
                         }
-                        ChatColor actionbarColor = ChatColor.WHITE;
+                        ChatColor actionbarColor;
                         long ticks = getTicksRemainingBeforeItemsDespawn(p);
-                        if(ticks < 4800){
-                            actionbarColor = ChatColor.GOLD;
-                        } else if(ticks < 3600){
-                            actionbarColor = ChatColor.YELLOW;
-                        } else if(ticks < 2400){
-                            actionbarColor = ChatColor.RED;
+                        if(ticks < 600){
+                            actionbarColor = ChatColor.BLACK;
                         } else if(ticks < 1200){
                             actionbarColor = ChatColor.DARK_RED;
-                        } else if(ticks < 600){
-                            actionbarColor = ChatColor.BLACK;
+                        } else if(ticks < 2400){
+                            actionbarColor = ChatColor.RED;
+                        } else if(ticks < 3600){
+                            actionbarColor = ChatColor.YELLOW;
+                        } else if(ticks < 4800){
+                            actionbarColor = ChatColor.GOLD;
+                        } else {
+                            actionbarColor = ChatColor.WHITE;
                         }
                         ActionBarAPI.sendActionBar(p, actionbarColor + sb.toString() + ChatColor.RESET);
                     }

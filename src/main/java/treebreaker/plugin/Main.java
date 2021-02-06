@@ -180,7 +180,7 @@ public class Main extends JavaPlugin implements Listener {
 
         Permissions.load();
         ActionBarAPI.load();
-        
+
         Bukkit.getPluginManager().registerEvents(new UpdateNotifier(), this);
         Bukkit.getPluginManager().registerEvents(new TreeBreaker(), this);
         Bukkit.getPluginManager().registerEvents(new SilkSpawners(), this);
@@ -189,15 +189,9 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new SleepFixes(), this);
         Bukkit.getPluginManager().registerEvents(new Events(), this);
 
-        
-        try {
-            String currentVersion = this.getDescription().getVersion();
-            if (currentVersion.matches("^[0-9.]+$")) {
-                Main.version = new Version(currentVersion);
-            }
-        } catch (Exception e) {
+        String currentVersion = this.getDescription().getVersion();
+        Main.version = new Version(currentVersion);
 
-        }
         try {
             URL updateCheckURL = new URL("https://raw.githubusercontent.com/OptionalAura/TreebreakPlugin/master/src/plugin.yml");
             BufferedReader br = new BufferedReader(new InputStreamReader(updateCheckURL.openStream()));
@@ -314,14 +308,14 @@ public class Main extends JavaPlugin implements Listener {
         } else if (cmd.getName().equalsIgnoreCase("mobCount")) {
             MobCounter.run(sender, args);
             return true;
-        } else if (cmd.getName().equalsIgnoreCase("AllEnchant")){
+        } else if (cmd.getName().equalsIgnoreCase("AllEnchant")) {
             AllEnchant.run(sender, cmd, label, args);
             return true;
-        } else if (cmd.getName().equalsIgnoreCase("EZEnchant")){
+        } else if (cmd.getName().equalsIgnoreCase("EZEnchant")) {
             EZEnchant.run(sender, cmd, label, args);
             return true;
         }
         return true;
     }
-    
+
 }
