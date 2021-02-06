@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import main.java.treebreaker.plugin.features.ColoredNames;
 import main.java.treebreaker.plugin.features.DeathMarkers;
+import main.java.treebreaker.plugin.features.AllEnchant;
 import main.java.treebreaker.plugin.features.EZEnchant;
 import main.java.treebreaker.plugin.features.MobAutofill;
 import main.java.treebreaker.plugin.features.MobCounter;
@@ -305,6 +306,9 @@ public class Main extends JavaPlugin implements Listener {
             }
         } else if (cmd.getName().equalsIgnoreCase("mobCount")) {
             MobCounter.run(sender, args);
+            return true;
+        } else if (cmd.getName().equalsIgnoreCase("AllEnchant")){
+            AllEnchant.run(sender, cmd, label, args);
             return true;
         } else if (cmd.getName().equalsIgnoreCase("EZEnchant")){
             EZEnchant.run(sender, cmd, label, args);
