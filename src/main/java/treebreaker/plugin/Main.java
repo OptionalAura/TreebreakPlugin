@@ -24,6 +24,8 @@ import main.java.treebreaker.plugin.utils.Utils;
 import static main.java.treebreaker.plugin.utils.Utils.getProperty;
 import static main.java.treebreaker.plugin.utils.Utils.setProperty;
 import main.java.treebreaker.plugin.utils.Version;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -293,6 +295,9 @@ public class Main extends JavaPlugin implements Listener {
                                 updateAvailable = true;
                                 updateMessage = "There is an update available for " + this.getDescription().getName() + "(v. " + this.getDescription().getVersion() + " -> v. " + line.replaceAll("[^0-9.]", "") + ")";
                                 sender.sendMessage(ChatColor.RED + updateMessage + ChatColor.RESET);
+                                TextComponent updateText = new TextComponent(ChatColor.RED + "Click to update" + ChatColor.RESET);
+                                updateText.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/OptionalAura/TreebreakPlugin"));
+                                sender.spigot().sendMessage(updateText);
                             } else {
                                 updateAvailable = false;
                                 updateMessage = "You have the latest verion of " + this.getDescription().getName() + "(v. " + this.getDescription().getVersion() + ")";

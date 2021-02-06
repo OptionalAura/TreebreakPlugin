@@ -56,6 +56,7 @@ public class Version {
             }
         }
         if(ids.length != other.ids.length){
+            //TODO Fix this so 2.3 is equal to 2.3.0.0.0.0
             return ids.length > other.ids.length ? 1 : -1;
         }
         return 0;
