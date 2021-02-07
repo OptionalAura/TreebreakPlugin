@@ -1,6 +1,6 @@
 name: Treebreaker
 main: main.java.treebreaker.plugin.Main
-version: 1.16.4.2.0
+version: 1.16.4.2.1
 author: Daniel Allen
 api-version: 1.16
 load: STARTUP
