@@ -18,9 +18,14 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.AbstractArrow.PickupStatus;
+import org.bukkit.entity.Arrow;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.util.Vector;
 
 /**
  *
@@ -52,6 +57,39 @@ public class Events implements Listener {
             } catch (IOException | NumberFormatException e) {
                 Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "Error detecting updates for Treebreaker:" + ChatColor.RESET);
                 Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + e.getLocalizedMessage() + ChatColor.RESET);
+            }
+        }
+    }
+    @EventHandler
+    public void onBowShoot(EntityShootBowEvent event){
+        if(event.getBow().containsEnchantment(Enchantment.MULTISHOT)){
+            int arrowCount = Math.min(event.getBow().getEnchantmentLevel(Enchantment.MULTISHOT) * 2,5);
+            double radSpread = 0.2;
+            double spacing = radSpread/arrowCount;
+            double yaw = event.getEntity().getLocation().getYaw()-radSpread;
+            Vector facing = event.getEntity().getLocation().getDirection();
+            for(int i = 0; i < arrowCount/2; i++){
+                facing.rotateAroundY(-spacing);
+                Arrow spawned = event.getEntity().getWorld().spawnArrow(event.getProjectile().getLocation(), facing, event.getForce(), 12);
+                spawned.setShooter(event.getEntity());
+                spawned.setDamage(((Arrow)event.getProjectile()).getDamage());
+                spawned.setPickupStatus(((Arrow)event.getProjectile()).getPickupStatus());
+                spawned.setBasePotionData(((Arrow)event.getProjectile()).getBasePotionData());
+                spawned.setFireTicks(((Arrow)event.getProjectile()).getFireTicks());
+                spawned.setKnockbackStrength(((Arrow)event.getProjectile()).getKnockbackStrength());
+                spawned.setPierceLevel(((Arrow)event.getProjectile()).getPierceLevel());
+            }
+            facing = event.getEntity().getLocation().getDirection();
+            for(int i = 0; i < arrowCount/2; i++){
+                facing.rotateAroundY(spacing);
+                Arrow spawned = event.getEntity().getWorld().spawnArrow(event.getProjectile().getLocation(), facing, event.getForce(), 12);
+                spawned.setShooter(event.getEntity());
+                spawned.setDamage(((Arrow)event.getProjectile()).getDamage());
+                spawned.setPickupStatus(((Arrow)event.getProjectile()).getPickupStatus());
+                spawned.setBasePotionData(((Arrow)event.getProjectile()).getBasePotionData());
+                spawned.setFireTicks(((Arrow)event.getProjectile()).getFireTicks());
+                spawned.setKnockbackStrength(((Arrow)event.getProjectile()).getKnockbackStrength());
+                spawned.setPierceLevel(((Arrow)event.getProjectile()).getPierceLevel());
             }
         }
     }

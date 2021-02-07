@@ -124,18 +124,22 @@ public class EZEnchant {
                 list.add(e);
             }
         }*/
-        
         //sort enchantments first by if the item can normally have that enchantment (inverted), then by name
         list.sort(new Comparator<Enchantment>() {
             @Override
             public int compare(Enchantment o1, Enchantment o2) {
-                if (o1.canEnchantItem(item) && o2.canEnchantItem(item)) {
+                if ((o1.canEnchantItem(item) || (item.getType().equals(Material.BOW) && o1.equals(Enchantment.MULTISHOT))) && o2.canEnchantItem(item)) {
                     return o1.getKey().getKey().compareTo(o2.getKey().getKey());
                 } else {
-                    return o1.canEnchantItem(item) ? 1 : (item.getType().equals(Material.BOW) && o1.equals(Enchantment.MULTISHOT)) ? 1 : -1;
+                    if (o1.canEnchantItem(item)) {
+                        return 1;
+                    }
+                    if (item.getType().equals(Material.BOW) && o1.equals(Enchantment.MULTISHOT)) {
+                        return 1;
+                    }
+                    return -1;
                 }
             }
-
         });
 
         //send a textcomponent to the user for each enchantment
@@ -143,9 +147,9 @@ public class EZEnchant {
             Enchantment ench = list.get(i);
             int levelApplied = item.getEnchantmentLevel(ench);
             TextComponent enchTextComp = new TextComponent((ench.canEnchantItem(item) ? ChatColor.DARK_GREEN : (item.getType().equals(Material.BOW) && ench.equals(Enchantment.MULTISHOT)) ? ChatColor.DARK_GREEN : ChatColor.WHITE) + WordUtils.capitalizeFully(ench.getKey().getKey(), new char[]{' ', '_'}).replaceAll("_", " ") + " ");
-            
-            if(ench.getMaxLevel() > 1){
-                TextComponent inputText = new TextComponent((levelApplied > ench.getMaxLevel() ? ChatColor.WHITE + " " + levelApplied + " ": ChatColor.GRAY + "__ "));
+
+            if (ench.getMaxLevel() > 1) {
+                TextComponent inputText = new TextComponent((levelApplied > ench.getMaxLevel() ? ChatColor.WHITE + " " + levelApplied + " " : ChatColor.GRAY + "_ "));
                 inputText.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ezenchant " + ench.getKey().getKey() + " " + ench.getMaxLevel()));
                 enchTextComp.addExtra(inputText);
             }
