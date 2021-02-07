@@ -151,9 +151,9 @@ public class DeathMarkers implements Listener {
                         } else if(ticks < 2400){
                             actionbarColor = ChatColor.RED;
                         } else if(ticks < 3600){
-                            actionbarColor = ChatColor.YELLOW;
-                        } else if(ticks < 4800){
                             actionbarColor = ChatColor.GOLD;
+                        } else if(ticks < 4800){
+                            actionbarColor = ChatColor.YELLOW;
                         } else {
                             actionbarColor = ChatColor.WHITE;
                         }
