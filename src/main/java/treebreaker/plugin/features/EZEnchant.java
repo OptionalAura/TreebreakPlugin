@@ -148,7 +148,7 @@ public class EZEnchant {
             int levelApplied = item.getEnchantmentLevel(ench);
             TextComponent enchTextComp = new TextComponent((ench.canEnchantItem(item) ? ChatColor.DARK_GREEN : (item.getType().equals(Material.BOW) && ench.equals(Enchantment.MULTISHOT)) ? ChatColor.DARK_GREEN : ChatColor.WHITE) + WordUtils.capitalizeFully(ench.getKey().getKey(), new char[]{' ', '_'}).replaceAll("_", " ") + " ");
 
-            if (ench.getMaxLevel() > 1) {
+            if (ench.getMaxLevel() > 1 || ench.equals(Enchantment.MULTISHOT)) {
                 TextComponent inputText = new TextComponent((levelApplied > ench.getMaxLevel() ? ChatColor.WHITE + " " + levelApplied + " " : ChatColor.GRAY + "_ "));
                 inputText.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ezenchant " + ench.getKey().getKey() + " " + ench.getMaxLevel()));
                 enchTextComp.addExtra(inputText);
