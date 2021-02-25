@@ -18,13 +18,17 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow.PickupStatus;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
 /**
@@ -32,9 +36,16 @@ import org.bukkit.util.Vector;
  * @author dsato
  */
 public class Events implements Listener {
+
+    public NamespacedKey b_shouldDespawn;
+
+    public Events() {
+        b_shouldDespawn = new NamespacedKey(Main.thisPlugin, "shouldDespawn");
+    }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if(event.getPlayer().isOp()){
+        if (event.getPlayer().isOp()) {
             try {
                 URL updateCheckURL = new URL("https://raw.githubusercontent.com/OptionalAura/TreebreakPlugin/master/src/plugin.yml");
                 try ( BufferedReader br = new BufferedReader(new InputStreamReader(updateCheckURL.openStream()))) {
@@ -60,38 +71,62 @@ public class Events implements Listener {
             }
         }
     }
+
     @EventHandler
-    public void onBowShoot(EntityShootBowEvent event){
-        if(event.getBow().containsEnchantment(Enchantment.MULTISHOT)){
-            int arrowCount = Math.min(event.getBow().getEnchantmentLevel(Enchantment.MULTISHOT) * 2,50);
+    public void onBowShoot(EntityShootBowEvent event) {
+        if (event.getBow().containsEnchantment(Enchantment.MULTISHOT)) {
+            int arrowCount = Math.min(event.getBow().getEnchantmentLevel(Enchantment.MULTISHOT) * 2, 50);
             double radSpread = 0.2;
-            double spacing = radSpread/arrowCount;
-            double yaw = event.getEntity().getLocation().getYaw()-radSpread;
+            double spacing = radSpread / arrowCount;
+            double yaw = event.getEntity().getLocation().getYaw() - radSpread;
             Vector facing = event.getEntity().getLocation().getDirection();
-            for(int i = 0; i < arrowCount/2; i++){
+            Arrow spawned;
+            for (int i = 0; i < arrowCount / 2; i++) {
                 facing.rotateAroundY(-spacing);
-                Arrow spawned = event.getEntity().getWorld().spawnArrow(event.getProjectile().getLocation(), facing, (float)event.getProjectile().getVelocity().length(), 12);
+                spawned = event.getEntity().getWorld().spawnArrow(event.getProjectile().getLocation(), facing, (float) event.getProjectile().getVelocity().length(), 12);
                 spawned.setShooter(event.getEntity());
-                spawned.setDamage(((Arrow)event.getProjectile()).getDamage());
+                spawned.setDamage(((Arrow) event.getProjectile()).getDamage());
                 spawned.setPickupStatus(PickupStatus.CREATIVE_ONLY);
-                if(((Arrow)event.getProjectile()).hasCustomEffects())
-                    spawned.setBasePotionData(((Arrow)event.getProjectile()).getBasePotionData());
-                spawned.setFireTicks(((Arrow)event.getProjectile()).getFireTicks());
-                spawned.setKnockbackStrength(((Arrow)event.getProjectile()).getKnockbackStrength());
-                spawned.setPierceLevel(((Arrow)event.getProjectile()).getPierceLevel());
+                if (((Arrow) event.getProjectile()).hasCustomEffects()) {
+                    spawned.setBasePotionData(((Arrow) event.getProjectile()).getBasePotionData());
+                }
+                spawned.setFireTicks(((Arrow) event.getProjectile()).getFireTicks());
+                spawned.setKnockbackStrength(((Arrow) event.getProjectile()).getKnockbackStrength());
+                spawned.setPierceLevel(((Arrow) event.getProjectile()).getPierceLevel());
+
+                spawned.getPersistentDataContainer().set(b_shouldDespawn, PersistentDataType.BYTE, (byte) 1);
             }
             facing = event.getEntity().getLocation().getDirection();
-            for(int i = 0; i < arrowCount/2; i++){
+            for (int i = 0; i < arrowCount / 2; i++) {
                 facing.rotateAroundY(spacing);
-                Arrow spawned = event.getEntity().getWorld().spawnArrow(event.getProjectile().getLocation(), facing, (float)event.getProjectile().getVelocity().length(), 12);
+                spawned = event.getEntity().getWorld().spawnArrow(event.getProjectile().getLocation(), facing, (float) event.getProjectile().getVelocity().length(), 12);
                 spawned.setShooter(event.getEntity());
-                spawned.setDamage(((Arrow)event.getProjectile()).getDamage());
+                spawned.setDamage(((Arrow) event.getProjectile()).getDamage());
                 spawned.setPickupStatus(PickupStatus.CREATIVE_ONLY);
-                if(((Arrow)event.getProjectile()).hasCustomEffects())
-                    spawned.setBasePotionData(((Arrow)event.getProjectile()).getBasePotionData());
-                spawned.setFireTicks(((Arrow)event.getProjectile()).getFireTicks());
-                spawned.setKnockbackStrength(((Arrow)event.getProjectile()).getKnockbackStrength());
-                spawned.setPierceLevel(((Arrow)event.getProjectile()).getPierceLevel());
+                if (((Arrow) event.getProjectile()).hasCustomEffects()) {
+                    spawned.setBasePotionData(((Arrow) event.getProjectile()).getBasePotionData());
+                }
+                spawned.setFireTicks(((Arrow) event.getProjectile()).getFireTicks());
+                spawned.setKnockbackStrength(((Arrow) event.getProjectile()).getKnockbackStrength());
+                spawned.setPierceLevel(((Arrow) event.getProjectile()).getPierceLevel());
+
+                spawned.getPersistentDataContainer().set(b_shouldDespawn, PersistentDataType.BYTE, (byte) 1);
+            }
+        }
+    }
+
+    @EventHandler
+    public void ArrowHitTarget(org.bukkit.event.entity.ProjectileHitEvent event) {
+        if (event.getEntityType().equals(EntityType.ARROW)) {
+            Arrow arrow = (Arrow) event.getEntity();
+            if (arrow.isInBlock()) {
+                PersistentDataContainer pdc = arrow.getPersistentDataContainer();
+                if (pdc.has(b_shouldDespawn, PersistentDataType.BYTE)) {
+                    byte val = pdc.get(b_shouldDespawn, PersistentDataType.BYTE);
+                    if(val == (byte)1){
+                        arrow.remove();
+                    }
+                }
             }
         }
     }
