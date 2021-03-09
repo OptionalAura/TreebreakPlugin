@@ -11,6 +11,7 @@ import main.java.treebreaker.plugin.features.ColoredNames;
 import main.java.treebreaker.plugin.features.DeathMarkers;
 import main.java.treebreaker.plugin.features.AllEnchant;
 import main.java.treebreaker.plugin.features.EZEnchant;
+import main.java.treebreaker.plugin.features.Guns.Gun;
 import main.java.treebreaker.plugin.features.MobAutofill;
 import main.java.treebreaker.plugin.features.MobCounter;
 import main.java.treebreaker.plugin.features.SilkSpawners;
@@ -28,12 +29,18 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -225,11 +232,16 @@ public class Main extends JavaPlugin implements Listener {
         tickCounter = new BukkitRunnable() {
             @Override
             public void run() {
-                tick++;
+                tick();
             }
         };
         tick = 0;
         tickCounter.runTaskTimerAsynchronously(thisPlugin, 1, 1);
+    }
+
+    public void tick() {
+        tick++;
+        Gun.tick();
     }
 
     @Override
@@ -319,6 +331,21 @@ public class Main extends JavaPlugin implements Listener {
         } else if (cmd.getName().equalsIgnoreCase("EZEnchant")) {
             EZEnchant.run(sender, cmd, label, args);
             return true;
+        } else if (cmd.getName().equalsIgnoreCase("shotgun")) {
+            if (sender.isOp()) {
+                if (sender instanceof Player) {
+                    ItemStack shotgun = new ItemStack(Material.STICK, 1);
+                    ItemMeta itemMeta = shotgun.getItemMeta();
+                    PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+                    pdc.set(Events.i_stickGun, PersistentDataType.INTEGER, Events.SHOTGUN);
+                    shotgun.setItemMeta(itemMeta);
+                    if (((Player) sender).getInventory().firstEmpty() != -1) {
+                        ((Player) sender).getInventory().addItem(shotgun);
+                    } else {
+                        ((Player) sender).getWorld().dropItemNaturally(((Player) sender).getLocation(), shotgun);
+                    }
+                }
+            }
         }
         return true;
     }

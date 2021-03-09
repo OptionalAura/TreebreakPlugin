@@ -5,28 +5,19 @@
  */
 package main.java.treebreaker.plugin.misc;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import main.java.treebreaker.plugin.Main;
-import static main.java.treebreaker.plugin.Main.updateAvailable;
-import static main.java.treebreaker.plugin.Main.updateMessage;
-import main.java.treebreaker.plugin.utils.Utils;
-import main.java.treebreaker.plugin.utils.Version;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import main.java.treebreaker.plugin.features.Guns.Shotgun;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow.PickupStatus;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
@@ -37,41 +28,41 @@ import org.bukkit.util.Vector;
  */
 public class Events implements Listener {
 
-    public NamespacedKey b_shouldDespawn;
-
+    public static NamespacedKey b_shouldDespawn = new NamespacedKey(Main.thisPlugin, "shouldDespawn")
+            , i_stickGun = new NamespacedKey(Main.thisPlugin, "shouldDespawn");
+    public static final int SHOTGUN = 0,
+            ASSAULT_RIFLE = 1,
+            SNIPER = 2,
+            SUBMACHINE_GUN = 3,
+            ROCKET_LAUNCHER = 4,
+            DMR = 5,
+            OTHER = -1;
+    
     public Events() {
-        b_shouldDespawn = new NamespacedKey(Main.thisPlugin, "shouldDespawn");
+        
     }
-
+    
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        if (event.getPlayer().isOp()) {
-            try {
-                URL updateCheckURL = new URL("https://raw.githubusercontent.com/OptionalAura/TreebreakPlugin/master/src/plugin.yml");
-                try ( BufferedReader br = new BufferedReader(new InputStreamReader(updateCheckURL.openStream()))) {
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        if (line.startsWith("version: ")) {
-                            line = Utils.stringAfter(line, "version: ");
-                            Version updatedVersion = new Version(line);
-                            if (Main.version.compareTo(updatedVersion) == -1) {
-                                updateAvailable = true;
-                                updateMessage = "There is an update available for " + Main.thisPlugin.getName() + "(v. " + Main.thisPlugin.getDescription().getVersion() + " -> v. " + line.replaceAll("[^0-9.]", "") + ")";
-                                event.getPlayer().sendMessage(ChatColor.RED + updateMessage + ChatColor.RESET);
-                                TextComponent updateText = new TextComponent(ChatColor.RED + "Click to update" + ChatColor.RESET);
-                                updateText.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/OptionalAura/TreebreakPlugin"));
-                                event.getPlayer().spigot().sendMessage(updateText);
-                            }
-                        }
+    public void onStickRightClick(org.bukkit.event.player.PlayerInteractEvent event){
+        ItemStack itemInHand = event.getItem();
+        if(itemInHand != null && itemInHand.getType().equals(Material.STICK)){
+            if(itemInHand.hasItemMeta()){
+                ItemMeta itemMeta = itemInHand.getItemMeta();
+                PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+                if(pdc.has(i_stickGun, PersistentDataType.INTEGER)){
+                    int val = pdc.get(i_stickGun, PersistentDataType.INTEGER);
+                    switch(val){
+                        case SHOTGUN:
+                            Shotgun.shoot(event.getPlayer(), itemInHand, val);
+                            break;
+                        default:
+                            break;
                     }
                 }
-            } catch (IOException | NumberFormatException e) {
-                Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "Error detecting updates for Treebreaker:" + ChatColor.RESET);
-                Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + e.getLocalizedMessage() + ChatColor.RESET);
             }
         }
     }
-
+    
     @EventHandler
     public void onBowShoot(EntityShootBowEvent event) {
         if (event.getBow().containsEnchantment(Enchantment.MULTISHOT)) {
@@ -83,7 +74,7 @@ public class Events implements Listener {
             Arrow spawned;
             for (int i = 0; i < arrowCount / 2; i++) {
                 facing.rotateAroundY(-spacing);
-                spawned = event.getEntity().getWorld().spawnArrow(event.getProjectile().getLocation(), facing, (float) event.getProjectile().getVelocity().length(), 12);
+                spawned = event.getEntity().getWorld().spawnArrow(event.getProjectile().getLocation(), facing, (float) event.getProjectile().getVelocity().length(), 2);
                 spawned.setShooter(event.getEntity());
                 spawned.setDamage(((Arrow) event.getProjectile()).getDamage());
                 spawned.setPickupStatus(PickupStatus.CREATIVE_ONLY);
@@ -94,12 +85,12 @@ public class Events implements Listener {
                 spawned.setKnockbackStrength(((Arrow) event.getProjectile()).getKnockbackStrength());
                 spawned.setPierceLevel(((Arrow) event.getProjectile()).getPierceLevel());
 
-                spawned.getPersistentDataContainer().set(b_shouldDespawn, PersistentDataType.BYTE, (byte) 1);
+                spawned.getPersistentDataContainer().set(b_shouldDespawn, PersistentDataType.INTEGER, 1);
             }
             facing = event.getEntity().getLocation().getDirection();
             for (int i = 0; i < arrowCount / 2; i++) {
                 facing.rotateAroundY(spacing);
-                spawned = event.getEntity().getWorld().spawnArrow(event.getProjectile().getLocation(), facing, (float) event.getProjectile().getVelocity().length(), 12);
+                spawned = event.getEntity().getWorld().spawnArrow(event.getProjectile().getLocation(), facing, (float) event.getProjectile().getVelocity().length(), 2);
                 spawned.setShooter(event.getEntity());
                 spawned.setDamage(((Arrow) event.getProjectile()).getDamage());
                 spawned.setPickupStatus(PickupStatus.CREATIVE_ONLY);
@@ -110,24 +101,24 @@ public class Events implements Listener {
                 spawned.setKnockbackStrength(((Arrow) event.getProjectile()).getKnockbackStrength());
                 spawned.setPierceLevel(((Arrow) event.getProjectile()).getPierceLevel());
 
-                spawned.getPersistentDataContainer().set(b_shouldDespawn, PersistentDataType.BYTE, (byte) 1);
+                spawned.getPersistentDataContainer().set(b_shouldDespawn, PersistentDataType.INTEGER, 1);
             }
         }
     }
 
     @EventHandler
     public void ArrowHitTarget(org.bukkit.event.entity.ProjectileHitEvent event) {
-        if (event.getEntityType().equals(EntityType.ARROW)) {
+        if (event.getEntity() instanceof Arrow) {
             Arrow arrow = (Arrow) event.getEntity();
-            if (arrow.isInBlock()) {
-                PersistentDataContainer pdc = arrow.getPersistentDataContainer();
-                if (pdc.has(b_shouldDespawn, PersistentDataType.BYTE)) {
-                    byte val = pdc.get(b_shouldDespawn, PersistentDataType.BYTE);
-                    if(val == (byte)1){
-                        arrow.remove();
-                    }
+            //if (arrow.isInBlock()) {
+            PersistentDataContainer pdc = arrow.getPersistentDataContainer();
+            if (pdc.has(b_shouldDespawn, PersistentDataType.INTEGER)) {
+                int val = pdc.get(b_shouldDespawn, PersistentDataType.INTEGER);
+                if (val == 1) {
+                    arrow.remove();
                 }
             }
+            //}
         }
     }
 }
