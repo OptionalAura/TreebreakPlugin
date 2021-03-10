@@ -5,13 +5,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import main.java.treebreaker.plugin.features.ColoredNames;
 import main.java.treebreaker.plugin.features.DeathMarkers;
 import main.java.treebreaker.plugin.features.AllEnchant;
 import main.java.treebreaker.plugin.features.EZEnchant;
+import main.java.treebreaker.plugin.features.Guns.AT4;
+import main.java.treebreaker.plugin.features.Guns.AssaultRifle;
 import main.java.treebreaker.plugin.features.Guns.Gun;
+import main.java.treebreaker.plugin.features.Guns.Shotgun;
+import main.java.treebreaker.plugin.features.Guns.Sniper;
 import main.java.treebreaker.plugin.features.MobAutofill;
 import main.java.treebreaker.plugin.features.MobCounter;
 import main.java.treebreaker.plugin.features.SilkSpawners;
@@ -19,6 +26,7 @@ import main.java.treebreaker.plugin.features.SleepFixes;
 import main.java.treebreaker.plugin.features.TreeBreaker;
 import main.java.treebreaker.plugin.misc.ActionBarAPI;
 import main.java.treebreaker.plugin.misc.Events;
+import static main.java.treebreaker.plugin.misc.Events.i_stickGunUUID;
 import main.java.treebreaker.plugin.misc.Permissions;
 import main.java.treebreaker.plugin.misc.UpdateNotifier;
 import main.java.treebreaker.plugin.utils.Utils;
@@ -88,6 +96,8 @@ public class Main extends JavaPlugin implements Listener {
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, getProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
 
         settingsConfig.set("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, getProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
+        
+        settingsConfig.set("gun." + Gun.AT4_EXPLOSION_POWER_TAG, getProperty(Gun.AT4_EXPLOSION_POWER_TAG, 5d));
     }
 
     public static void loadSettings() {
@@ -110,6 +120,8 @@ public class Main extends JavaPlugin implements Listener {
         setProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, settingsConfig.getBoolean("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
 
         setProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, settingsConfig.getBoolean("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
+        
+        setProperty(Gun.AT4_EXPLOSION_POWER_TAG, settingsConfig.getDouble("gun." + Gun.AT4_EXPLOSION_POWER_TAG, 5d));
     }
 
     public static BukkitScheduler getScheduler() {
@@ -236,7 +248,7 @@ public class Main extends JavaPlugin implements Listener {
             }
         };
         tick = 0;
-        tickCounter.runTaskTimerAsynchronously(thisPlugin, 1, 1);
+        tickCounter.runTaskTimer(thisPlugin, 1, 1);
     }
 
     public void tick() {
@@ -264,7 +276,7 @@ public class Main extends JavaPlugin implements Listener {
             return DeathMarkers.onCommand(sender, cmd, label, args);
         } else if (cmd.getName().equalsIgnoreCase("setProperty")) {
             if (sender.isOp()) {
-                if (args.length == 0 || args[0].equalsIgnoreCase("?") || args[0].isEmpty()) {
+                if (args.length == 0 || args[0].equals("?") || args[0].isEmpty()) {
                     sender.sendMessage("All properties: " + Utils.getAllProperties());
                 } else {
                     if (Utils.hasProperty(args[0])) {
@@ -272,12 +284,13 @@ public class Main extends JavaPlugin implements Listener {
                             switch (args[1].toUpperCase()) {
                                 case "FALSE":
                                     Utils.setProperty(args[0], false);
+                                    break;
                                 case "TRUE":
                                     Utils.setProperty(args[0], true);
                                     break;
                                 default:
-                                    if (isNumbersOnly(args[1], false, false, true, false)) {
-                                        Utils.setProperty(args[0], Integer.parseInt(args[1]));
+                                    if (isNumbersOnly(args[1], true, true, true, false)) {
+                                        Utils.setProperty(args[0], Double.parseDouble(args[1]));
                                     } else if (settingsConfig.getDefaults() != null) {
                                         Object def = settingsConfig.getDefaults().get(args[0]);
                                         if (def != null) {
@@ -336,13 +349,98 @@ public class Main extends JavaPlugin implements Listener {
                 if (sender instanceof Player) {
                     ItemStack shotgun = new ItemStack(Material.STICK, 1);
                     ItemMeta itemMeta = shotgun.getItemMeta();
+                    List<String> itemLore = new ArrayList<>();
+                    
+                    itemLore.add(ChatColor.WHITE + "Fire rate: " + 60/(Shotgun.cooldown / 20) + " rpm" + ChatColor.RESET);
+                    itemLore.add(ChatColor.WHITE + "Damage: " + Shotgun.damage/2 + ChatColor.RED + " ❤" + ChatColor.RESET);
+                    itemLore.add(ChatColor.WHITE + "Velocity: " + Shotgun.velocity + " m/s" + ChatColor.RESET);
+                    itemLore.add(ChatColor.GRAY + "Shoots lots of stuff" + ChatColor.RESET);
+
+                    itemMeta.setLore(itemLore);
+                    itemMeta.setDisplayName(ChatColor.GOLD + "Shotgun" + ChatColor.RESET);
                     PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
                     pdc.set(Events.i_stickGun, PersistentDataType.INTEGER, Events.SHOTGUN);
+                    pdc.set(i_stickGunUUID, PersistentDataType.STRING, UUID.randomUUID().toString());
                     shotgun.setItemMeta(itemMeta);
                     if (((Player) sender).getInventory().firstEmpty() != -1) {
                         ((Player) sender).getInventory().addItem(shotgun);
                     } else {
                         ((Player) sender).getWorld().dropItemNaturally(((Player) sender).getLocation(), shotgun);
+                    }
+                }
+            }
+        } else if (cmd.getName().equalsIgnoreCase("sniper")) {
+            if (sender.isOp()) {
+                if (sender instanceof Player) {
+                    ItemStack sniper = new ItemStack(Material.STICK, 1);
+                    ItemMeta itemMeta = sniper.getItemMeta();
+                    List<String> itemLore = new ArrayList<>();
+                    
+                    itemLore.add(ChatColor.WHITE + "Fire rate: " + 60/(Sniper.cooldown / 20) + " rpm" + ChatColor.RESET);
+                    itemLore.add(ChatColor.WHITE + "Damage: " + Sniper.damage/2 + ChatColor.RED + " ❤" + ChatColor.RESET);
+                    itemLore.add(ChatColor.WHITE + "Velocity: " + Sniper.velocity + " m/s" + ChatColor.RESET);
+                    itemLore.add(ChatColor.GRAY + "Shoots big stuff" + ChatColor.RESET);
+
+                    itemMeta.setLore(itemLore);
+                    itemMeta.setDisplayName(ChatColor.GOLD + "Sniper" + ChatColor.RESET);
+                    PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+                    pdc.set(Events.i_stickGun, PersistentDataType.INTEGER, Events.SNIPER);
+                    pdc.set(i_stickGunUUID, PersistentDataType.STRING, UUID.randomUUID().toString());
+                    sniper.setItemMeta(itemMeta);
+                    if (((Player) sender).getInventory().firstEmpty() != -1) {
+                        ((Player) sender).getInventory().addItem(sniper);
+                    } else {
+                        ((Player) sender).getWorld().dropItemNaturally(((Player) sender).getLocation(), sniper);
+                    }
+                }
+            }
+        } else if (cmd.getName().equalsIgnoreCase("assaultrifle")) {
+            if (sender.isOp()) {
+                if (sender instanceof Player) {
+                    ItemStack ar = new ItemStack(Material.STICK, 1);
+                    ItemMeta itemMeta = ar.getItemMeta();
+                    List<String> itemLore = new ArrayList<>();
+                    
+                    itemLore.add(ChatColor.WHITE + "Fire rate: " + 60/(AssaultRifle.cooldown / 20) + " rpm" + ChatColor.RESET);
+                    itemLore.add(ChatColor.WHITE + "Damage: " + AssaultRifle.damage/2 + ChatColor.RED + " ❤" + ChatColor.RESET);
+                    itemLore.add(ChatColor.WHITE + "Velocity: " + AssaultRifle.velocity + " m/s" + ChatColor.RESET);
+                    itemLore.add(ChatColor.GRAY + "Shoots medium stuff but fast" + ChatColor.RESET);
+
+                    itemMeta.setLore(itemLore);
+                    itemMeta.setDisplayName(ChatColor.GOLD + "Assault Rifle" + ChatColor.RESET);
+                    PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+                    pdc.set(Events.i_stickGun, PersistentDataType.INTEGER, Events.ASSAULT_RIFLE);
+                    pdc.set(i_stickGunUUID, PersistentDataType.STRING, UUID.randomUUID().toString());
+                    ar.setItemMeta(itemMeta);
+                    if (((Player) sender).getInventory().firstEmpty() != -1) {
+                        ((Player) sender).getInventory().addItem(ar);
+                    } else {
+                        ((Player) sender).getWorld().dropItemNaturally(((Player) sender).getLocation(), ar);
+                    }
+                }
+            }
+        } else if (cmd.getName().equalsIgnoreCase("rocketlauncher")) {
+            if (sender.isOp()) {
+                if (sender instanceof Player) {
+                    ItemStack ar = new ItemStack(Material.STICK, 1);
+                    ItemMeta itemMeta = ar.getItemMeta();
+                    List<String> itemLore = new ArrayList<>();
+                    
+                    itemLore.add(ChatColor.WHITE + "Fire rate: " + 60/(AT4.cooldown / 20) + " rpm" + ChatColor.RESET);
+                    itemLore.add(ChatColor.WHITE + "Damage: " + AT4.damage/2 + ChatColor.RED + " ❤" + ChatColor.RESET);
+                    itemLore.add(ChatColor.WHITE + "Velocity: " + AT4.velocity + " m/s" + ChatColor.RESET);
+                    itemLore.add(ChatColor.GRAY + "Shoots explody stuff but slow" + ChatColor.RESET);
+
+                    itemMeta.setLore(itemLore);
+                    itemMeta.setDisplayName(ChatColor.GOLD + "Rocket Launcher" + ChatColor.RESET);
+                    PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+                    pdc.set(Events.i_stickGun, PersistentDataType.INTEGER, Events.ROCKET_LAUNCHER);
+                    pdc.set(i_stickGunUUID, PersistentDataType.STRING, UUID.randomUUID().toString());
+                    ar.setItemMeta(itemMeta);
+                    if (((Player) sender).getInventory().firstEmpty() != -1) {
+                        ((Player) sender).getInventory().addItem(ar);
+                    } else {
+                        ((Player) sender).getWorld().dropItemNaturally(((Player) sender).getLocation(), ar);
                     }
                 }
             }

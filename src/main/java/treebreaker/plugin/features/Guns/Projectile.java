@@ -12,7 +12,6 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -22,42 +21,69 @@ import org.bukkit.util.Vector;
  */
 public class Projectile {
 
-    private boolean alive;
-    private final Location pos;
-    private final Vector vel;
-    private final double hitDamage;
-    private final Entity owner;
-    private final Shot parent;
+    protected boolean alive = true;
+    protected final Location pos;
+    protected final Vector vel;
+    protected final double hitDamage;
+    protected final Entity owner;
+    protected final Shot parent;
+
+    protected long lifetime = 0;
+    protected int particleDensity = 1;
     
-    private long lifetime = 0;
-    
-    public Projectile(Location origin, double speed, double damage, Entity owner, Shot parent){
+    protected Particle.DustOptions tracer = new Particle.DustOptions(Color.fromRGB(255, 93, 93), 1);
+
+    public Projectile(Location origin, double speed, double damage, Entity owner, Shot parent) {
         this.pos = origin;
         this.vel = pos.getDirection().multiply(speed);
         this.hitDamage = damage;
         this.owner = owner;
         this.parent = parent;
-        
+
     }
-    
-    
+    public Projectile(Location origin, double speed, double damage, Entity owner, Shot parent, int particles) {
+        this.pos = origin;
+        this.vel = pos.getDirection().multiply(speed);
+        this.hitDamage = damage;
+        this.owner = owner;
+        this.parent = parent;
+        this.particleDensity = particles;
+    }
+    public Projectile(Location origin, double speed, double damage, Entity owner, Shot parent, int particles, Particle.DustOptions tracer) {
+        this.pos = origin;
+        this.vel = pos.getDirection().multiply(speed);
+        this.hitDamage = damage;
+        this.owner = owner;
+        this.parent = parent;
+        this.particleDensity = particles;
+        this.tracer = tracer;
+    }
     /**
      * Called every tick on this projectile
      */
-    public final void tick() {
+    public void tick() {
+        if (pos.getWorld() == null) {
+            return;
+        }
         lifetime++;
         before();
-        RayTraceResult hits = checkHits(true);
-        Location curPos = pos;
+
+        RayTraceResult hits = pos.getWorld().rayTrace(pos, vel.clone().normalize(), vel.length() / 20, FluidCollisionMode.ALWAYS, true, 0, hitFilter);
+        if (hits == null) {
+            //Bukkit.getConsoleSender().sendMessage("Hits was null");
+        }
+        Location curPos = pos.clone();
         move();
-        Location newPos = pos;
-        if (hits.getHitBlock() != null || hits.getHitEntity() != null) {
+        Location newPos = pos.clone();
+        if (hits != null && (hits.getHitBlock() != null || hits.getHitEntity() != null)) {
             Vector p = hits.getHitPosition();
             newPos.setX(p.getX());
             newPos.setY(p.getY());
             newPos.setZ(p.getZ());
+            Particle.DustOptions dust = new Particle.DustOptions(Color.fromRGB(55, 55, 55), 1);
+            curPos.getWorld().spawnParticle(Particle.REDSTONE, newPos, 4, 0, 0, 0, dust);
             destroy();
-            if(hits.getHitEntity() != null){
+            if (hits.getHitEntity() != null) {
                 hit(hits.getHitEntity());
             }
         }
@@ -72,16 +98,16 @@ public class Projectile {
         pos.add(new Vector(vel.getX() / 20, vel.getY() / 20, vel.getZ() / 20));
         vel.add(new Vector(0, -9.81 / 20, 0));
     }
-    
+
     Predicate<Entity> hitFilter = new Predicate<Entity>() {
         @Override
         public boolean test(Entity t) {
             return !(t.equals(owner) && lifetime < 20);
         }
     };
-    
+
     /**
-     * Checks hit entities.Returns null if it does not hit an entity
+     * Checks hit entities. Returns null if it does not hit an entity
      *
      * @param passthrough Whether it should detect hits through blocks
      * @return
@@ -97,16 +123,18 @@ public class Projectile {
      * @param curPos
      * @param newPos
      */
-    public final static void drawLine(Location curPos, Location newPos) {
-        if (curPos.isWorldLoaded() && curPos.getWorld().equals(newPos.getWorld())) {
+    public void drawLine(Location curPos, Location newPos) {
+        //if (curPos.isWorldLoaded()) {
             double dist = curPos.distance(newPos);
-            Location particleLocation = curPos;
-            Particle.DustOptions dust = new Particle.DustOptions(Color.fromRGB(255, 93, 93), 1);
-            for (int i = 0; i < dist; i++) {
-                particleLocation.add(curPos.getDirection());
-                curPos.getWorld().spawnParticle(Particle.REDSTONE, particleLocation.getX(), particleLocation.getY(), particleLocation.getZ(), 0, 0, 0, 0, dust);
+            Location particleLocation = curPos.clone();
+            Vector dir = newPos.clone().subtract(curPos).toVector().normalize();
+            //Bukkit.getConsoleSender().sendMessage("Be-for-loop " + dist);
+            for (int i = 0; i < Math.ceil(dist); i++) {
+                //Bukkit.getConsoleSender().sendMessage("Drawing line of length " + dist);
+                particleLocation.add(dir);
+                curPos.getWorld().spawnParticle(Particle.REDSTONE, particleLocation.getX(), particleLocation.getY(), particleLocation.getZ(), particleDensity, 0, 0, 0, 0, tracer, true);
             }
-        }
+        //}
     }
 
     /**
@@ -129,16 +157,18 @@ public class Projectile {
     }
 
     /**
-     * Does nothing, but is called at the end of the tick() method. Can be
-     * used in class implementations
+     * Does nothing, but is called at the end of the tick() method. Can be used
+     * in class implementations
      */
     public void after() {
 
     }
-    public boolean isAlive(){
+
+    public boolean isAlive() {
         return this.alive;
     }
-    public void destroy(){
+
+    public void destroy() {
         alive = false;
         parent.decrement();
     }

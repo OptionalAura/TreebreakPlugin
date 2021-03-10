@@ -33,6 +33,8 @@ public class UpdateNotifier implements Listener{
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (event.getPlayer().isOp()) {
+            event.getPlayer().setDisplayName(ChatColor.RED + event.getPlayer().getDisplayName() + ChatColor.RESET);
+
             try {
                 URL updateCheckURL = new URL("https://raw.githubusercontent.com/OptionalAura/TreebreakPlugin/master/src/plugin.yml");
                 try ( BufferedReader br = new BufferedReader(new InputStreamReader(updateCheckURL.openStream()))) {

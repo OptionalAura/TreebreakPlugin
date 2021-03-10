@@ -19,7 +19,7 @@ public class Version {
 
     public Version(String version, String delimiter) {
         String[] split = version.split("\\.");
-        System.out.println("Length: " + split.length);
+        //System.out.println("Length: " + split.length);
         ids = new int[split.length];
         for (int i = 0; i < split.length; i++) {
             String cur = split[i].replaceAll("[^0-9]", "");

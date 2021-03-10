@@ -5,9 +5,12 @@
  */
 package main.java.treebreaker.plugin.misc;
 
+import java.util.UUID;
 import main.java.treebreaker.plugin.Main;
+import main.java.treebreaker.plugin.features.Guns.AT4;
+import main.java.treebreaker.plugin.features.Guns.AssaultRifle;
 import main.java.treebreaker.plugin.features.Guns.Shotgun;
-import org.bukkit.Bukkit;
+import main.java.treebreaker.plugin.features.Guns.Sniper;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
@@ -15,6 +18,7 @@ import org.bukkit.entity.AbstractArrow.PickupStatus;
 import org.bukkit.entity.Arrow;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -28,8 +32,9 @@ import org.bukkit.util.Vector;
  */
 public class Events implements Listener {
 
-    public static NamespacedKey b_shouldDespawn = new NamespacedKey(Main.thisPlugin, "shouldDespawn")
-            , i_stickGun = new NamespacedKey(Main.thisPlugin, "shouldDespawn");
+    public static NamespacedKey b_shouldDespawn = new NamespacedKey(Main.thisPlugin, "shouldDespawn"),
+            i_stickGun = new NamespacedKey(Main.thisPlugin, "stickGun"),
+            i_stickGunUUID = new NamespacedKey(Main.thisPlugin, "stickGunUUID");
     public static final int SHOTGUN = 0,
             ASSAULT_RIFLE = 1,
             SNIPER = 2,
@@ -37,32 +42,51 @@ public class Events implements Listener {
             ROCKET_LAUNCHER = 4,
             DMR = 5,
             OTHER = -1;
-    
+
     public Events() {
-        
+
     }
-    
+
     @EventHandler
-    public void onStickRightClick(org.bukkit.event.player.PlayerInteractEvent event){
+    public void onStickRightClick(org.bukkit.event.player.PlayerInteractEvent event) {
         ItemStack itemInHand = event.getItem();
-        if(itemInHand != null && itemInHand.getType().equals(Material.STICK)){
-            if(itemInHand.hasItemMeta()){
-                ItemMeta itemMeta = itemInHand.getItemMeta();
-                PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
-                if(pdc.has(i_stickGun, PersistentDataType.INTEGER)){
-                    int val = pdc.get(i_stickGun, PersistentDataType.INTEGER);
-                    switch(val){
-                        case SHOTGUN:
-                            Shotgun.shoot(event.getPlayer(), itemInHand, val);
-                            break;
-                        default:
-                            break;
+        if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (itemInHand != null && itemInHand.getType().equals(Material.STICK)) {
+                if (itemInHand.hasItemMeta()) {
+                    ItemMeta itemMeta = itemInHand.getItemMeta();
+                    PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+                    if (pdc.has(i_stickGun, PersistentDataType.INTEGER)) {
+                        int val = pdc.get(i_stickGun, PersistentDataType.INTEGER);
+                        String uuid;
+                        if(pdc.has(i_stickGunUUID, PersistentDataType.STRING)){
+                            uuid = pdc.get(i_stickGunUUID, PersistentDataType.STRING);
+                        } else {
+                            uuid = UUID.randomUUID().toString();
+                            pdc.set(i_stickGunUUID, PersistentDataType.STRING, uuid);
+                        }
+                        itemInHand.setItemMeta(itemMeta);
+                        switch (val) {
+                            case SHOTGUN:
+                                Shotgun.shoot(event.getPlayer(), itemInHand, uuid);
+                                break;
+                            case SNIPER: 
+                                Sniper.shoot(event.getPlayer(), itemInHand, uuid);
+                                break;
+                            case ASSAULT_RIFLE: 
+                                AssaultRifle.shoot(event.getPlayer(), itemInHand, uuid);
+                                break;
+                            case ROCKET_LAUNCHER:
+                                AT4.shoot(event.getPlayer(), itemInHand, uuid);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
         }
     }
-    
+
     @EventHandler
     public void onBowShoot(EntityShootBowEvent event) {
         if (event.getBow().containsEnchantment(Enchantment.MULTISHOT)) {

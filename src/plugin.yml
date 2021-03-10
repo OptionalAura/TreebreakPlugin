@@ -1,6 +1,6 @@
 name: Treebreaker
 main: main.java.treebreaker.plugin.Main
-version: 1.16.4.5.0
+version: 1.16.5.1
 author: Daniel Allen
 api-version: 1.16
 load: STARTUP
@@ -25,3 +25,9 @@ commands:
         description: Applies all enchantments to an item at once
     shotgun:
         description: idk smth
+    sniper:
+        description: idk still smth
+    assaultrifle:
+        description: idk still smth but speedy
+    rocketlauncher:
+        description: idk still smth but explody

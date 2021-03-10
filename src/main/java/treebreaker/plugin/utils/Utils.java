@@ -1,14 +1,12 @@
 package main.java.treebreaker.plugin.utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.enchantments.Enchantment;
 
 /*
@@ -17,7 +15,7 @@ import org.bukkit.enchantments.Enchantment;
  */
 public class Utils {
 
-    private static final Map<String, Object> data = new HashMap<>();
+    private static final ConcurrentHashMap<String, Object> data = new ConcurrentHashMap<>();
 
     public static void setProperty(String key, Object value) {
         data.put(key, value);
