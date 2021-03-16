@@ -48,7 +48,7 @@ public class UpdateNotifier implements Listener{
                                 updateMessage = "There is an update available for " + Main.thisPlugin.getName() + "(v. " + Main.thisPlugin.getDescription().getVersion() + " -> v. " + line.replaceAll("[^0-9.]", "") + ")";
                                 event.getPlayer().sendMessage(ChatColor.RED + updateMessage + ChatColor.RESET);
                                 TextComponent updateText = new TextComponent(ChatColor.RED + "Click to update" + ChatColor.RESET);
-                                updateText.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/OptionalAura/TreebreakPlugin"));
+                                updateText.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/OptionalAura/TreebreakPlugin/releases"));
                                 event.getPlayer().spigot().sendMessage(updateText);
                             }
                         }

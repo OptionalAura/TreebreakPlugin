@@ -5,8 +5,6 @@
  */
 package main.java.treebreaker.plugin.features.Guns;
 
-import static main.java.treebreaker.plugin.features.Guns.AT4.velocity;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
@@ -26,8 +24,8 @@ public class Rocket extends Projectile {
 
     private float explosionPower;
 
-    public Rocket(Location newPos, double velocity, double damage, Player shooter, Shot shot, int i, Particle.DustOptions tracer, float power) {
-        super(newPos, velocity, damage, shooter, shot, i);
+    public Rocket(Location newPos, Vector vel, double damage, Player shooter, Shot shot, int i, Particle.DustOptions tracer, float power) {
+        super(newPos, vel, damage, shooter, shot, i);
         this.tracer = tracer;
         explosionPower = power;
     }
@@ -74,11 +72,11 @@ public class Rocket extends Projectile {
                             }
                         } else {
                             //Bukkit.getConsoleSender().sendMessage("Hit " + mat.toString() + " with hardness " + mat.getHardness());
-                            if (mat.getHardness() < 0.4) {
+                            if (mat.getHardness() < 0.4 && mat.getHardness() != -1) {
                                 hits.getHitBlock().breakNaturally();
                                 hitBlock = true;
                             } else {
-                                if (lifetime > 10 / (velocity / 20)) {
+                                if (lifetime > ((1.3*explosionPower/0.225)*0.3)/(vel.length()/20)) {
                                     Particle.DustOptions dust = new Particle.DustOptions(Color.fromRGB(150, 55, 55), 1);
                                     curPos.getWorld().spawnParticle(Particle.REDSTONE, newPos, 4, 0, 0, 0, dust);
                                     explode();

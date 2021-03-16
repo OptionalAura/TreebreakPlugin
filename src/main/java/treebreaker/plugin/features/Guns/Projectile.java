@@ -6,6 +6,7 @@
 package main.java.treebreaker.plugin.features.Guns;
 
 import java.util.function.Predicate;
+import main.java.treebreaker.plugin.utils.Utils;
 import org.bukkit.Color;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
@@ -41,6 +42,14 @@ public class Projectile {
         this.parent = parent;
 
     }
+    public Projectile(Location origin, Vector vel, double damage, Entity owner, Shot parent) {
+        this.pos = origin;
+        this.vel = vel;
+        this.hitDamage = damage;
+        this.owner = owner;
+        this.parent = parent;
+
+    }
     public Projectile(Location origin, double speed, double damage, Entity owner, Shot parent, int particles) {
         this.pos = origin;
         this.vel = pos.getDirection().multiply(speed);
@@ -49,9 +58,26 @@ public class Projectile {
         this.parent = parent;
         this.particleDensity = particles;
     }
+    public Projectile(Location origin, Vector vel, double damage, Entity owner, Shot parent, int particles) {
+        this.pos = origin;
+        this.vel = vel;
+        this.hitDamage = damage;
+        this.owner = owner;
+        this.parent = parent;
+        this.particleDensity = particles;
+    }
     public Projectile(Location origin, double speed, double damage, Entity owner, Shot parent, int particles, Particle.DustOptions tracer) {
         this.pos = origin;
         this.vel = pos.getDirection().multiply(speed);
+        this.hitDamage = damage;
+        this.owner = owner;
+        this.parent = parent;
+        this.particleDensity = particles;
+        this.tracer = tracer;
+    }
+    public Projectile(Location origin, Vector vel, double damage, Entity owner, Shot parent, int particles, Particle.DustOptions tracer) {
+        this.pos = origin;
+        this.vel = vel;
         this.hitDamage = damage;
         this.owner = owner;
         this.parent = parent;
@@ -96,7 +122,7 @@ public class Projectile {
      */
     public final void move() {
         pos.add(new Vector(vel.getX() / 20, vel.getY() / 20, vel.getZ() / 20));
-        vel.add(new Vector(0, -9.81 / 20, 0));
+        vel.add(new Vector(0, Utils.getProperty("world.physics.gravity", -9.81d) / 20, 0));
     }
 
     Predicate<Entity> hitFilter = new Predicate<Entity>() {

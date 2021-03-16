@@ -15,6 +15,7 @@ public class Permissions {
     public static void load(){
         pm = getServer().getPluginManager();
         definePerm("TreeEnchants");
+        definePerm("guns");
     }
     public static void definePerm(String name){
         if(!perms.containsKey(name)){

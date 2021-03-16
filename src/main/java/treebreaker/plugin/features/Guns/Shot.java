@@ -51,6 +51,10 @@ public class Shot {
         }
     }
     
+    public int getCount(){
+        return this.count;
+    }
+    
     public boolean isAlive() {
         return this.alive;
     }

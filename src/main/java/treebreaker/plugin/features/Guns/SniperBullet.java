@@ -21,9 +21,8 @@ import org.bukkit.util.Vector;
  */
 public class SniperBullet extends Projectile {
 
-    public SniperBullet(Location newPos, double velocity, double damage, Player shooter, Shot shot, int i, Particle.DustOptions tracer) {
+    public SniperBullet(Location newPos, Vector velocity, double damage, Player shooter, Shot shot, int i, Particle.DustOptions tracer) {
         super(newPos, velocity, damage, shooter, shot, i, tracer);
-
     }
 
     /**
@@ -69,10 +68,10 @@ public class SniperBullet extends Projectile {
                             }
                         } else {
                             //Bukkit.getConsoleSender().sendMessage("Hit " + mat.toString() + " with hardness " + mat.getHardness());
-                            if (mat.getHardness() < 0.4) {
+                            if (mat.getHardness() < 0.4 && mat.getHardness() != -1) {
                                 hits.getHitBlock().breakNaturally();
                                 hitBlock = true;
-                            } else if (mat.getHardness() < 0.7) {
+                            } else if (mat.getHardness() < 0.7 && mat.getHardness() != -1) {
                                 hits.getHitBlock().breakNaturally();
                                 destroy();
                             } else {

@@ -70,7 +70,7 @@ public class Utils {
         return joinList(new ArrayList(data.keySet()));
     }
 
-    public static Set getAllPropertyKeys() {
+    public static Set<String> getAllPropertyKeys() {
         return data.keySet();
     }
 

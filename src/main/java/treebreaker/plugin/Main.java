@@ -5,20 +5,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import main.java.treebreaker.plugin.features.ColoredNames;
 import main.java.treebreaker.plugin.features.DeathMarkers;
 import main.java.treebreaker.plugin.features.AllEnchant;
 import main.java.treebreaker.plugin.features.EZEnchant;
-import main.java.treebreaker.plugin.features.Guns.AT4;
-import main.java.treebreaker.plugin.features.Guns.AssaultRifle;
 import main.java.treebreaker.plugin.features.Guns.Gun;
-import main.java.treebreaker.plugin.features.Guns.Shotgun;
-import main.java.treebreaker.plugin.features.Guns.Sniper;
 import main.java.treebreaker.plugin.features.MobAutofill;
 import main.java.treebreaker.plugin.features.MobCounter;
 import main.java.treebreaker.plugin.features.SilkSpawners;
@@ -26,9 +19,9 @@ import main.java.treebreaker.plugin.features.SleepFixes;
 import main.java.treebreaker.plugin.features.TreeBreaker;
 import main.java.treebreaker.plugin.misc.ActionBarAPI;
 import main.java.treebreaker.plugin.misc.Events;
-import static main.java.treebreaker.plugin.misc.Events.i_stickGunUUID;
 import main.java.treebreaker.plugin.misc.Permissions;
 import main.java.treebreaker.plugin.misc.UpdateNotifier;
+import main.java.treebreaker.plugin.utils.SetPropertyAutofill;
 import main.java.treebreaker.plugin.utils.Utils;
 import static main.java.treebreaker.plugin.utils.Utils.getProperty;
 import static main.java.treebreaker.plugin.utils.Utils.setProperty;
@@ -37,7 +30,6 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -46,9 +38,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -97,7 +86,8 @@ public class Main extends JavaPlugin implements Listener {
 
         settingsConfig.set("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, getProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
         
-        settingsConfig.set("gun." + Gun.AT4_EXPLOSION_POWER_TAG, getProperty(Gun.AT4_EXPLOSION_POWER_TAG, 5d));
+        settingsConfig.set("world.physics.gravity", getProperty("world.physics.gravity", -9.81));
+        Gun.saveSettings(settingsConfig);
     }
 
     public static void loadSettings() {
@@ -120,8 +110,10 @@ public class Main extends JavaPlugin implements Listener {
         setProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, settingsConfig.getBoolean("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
 
         setProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, settingsConfig.getBoolean("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
+
+        setProperty("world.physics.gravity", settingsConfig.getDouble("world.physics.gravity", -9.81));
         
-        setProperty(Gun.AT4_EXPLOSION_POWER_TAG, settingsConfig.getDouble("gun." + Gun.AT4_EXPLOSION_POWER_TAG, 5d));
+        Gun.loadSettings(settingsConfig);
     }
 
     public static BukkitScheduler getScheduler() {
@@ -235,6 +227,7 @@ public class Main extends JavaPlugin implements Listener {
         }
         try {
             getCommand("mobCount").setTabCompleter(new MobAutofill(0));
+            getCommand("setProperty").setTabCompleter(new SetPropertyAutofill(0));
         } catch (Exception e) {
             Bukkit.getConsoleSender().sendMessage("Failed to register tab completion");
         }
@@ -344,108 +337,35 @@ public class Main extends JavaPlugin implements Listener {
         } else if (cmd.getName().equalsIgnoreCase("EZEnchant")) {
             EZEnchant.run(sender, cmd, label, args);
             return true;
-        } else if (cmd.getName().equalsIgnoreCase("shotgun")) {
-            if (sender.isOp()) {
-                if (sender instanceof Player) {
-                    ItemStack shotgun = new ItemStack(Material.STICK, 1);
-                    ItemMeta itemMeta = shotgun.getItemMeta();
-                    List<String> itemLore = new ArrayList<>();
-                    
-                    itemLore.add(ChatColor.WHITE + "Fire rate: " + 60/(Shotgun.cooldown / 20) + " rpm" + ChatColor.RESET);
-                    itemLore.add(ChatColor.WHITE + "Damage: " + Shotgun.damage/2 + ChatColor.RED + " ❤" + ChatColor.RESET);
-                    itemLore.add(ChatColor.WHITE + "Velocity: " + Shotgun.velocity + " m/s" + ChatColor.RESET);
-                    itemLore.add(ChatColor.GRAY + "Shoots lots of stuff" + ChatColor.RESET);
-
-                    itemMeta.setLore(itemLore);
-                    itemMeta.setDisplayName(ChatColor.GOLD + "Shotgun" + ChatColor.RESET);
-                    PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
-                    pdc.set(Events.i_stickGun, PersistentDataType.INTEGER, Events.SHOTGUN);
-                    pdc.set(i_stickGunUUID, PersistentDataType.STRING, UUID.randomUUID().toString());
-                    shotgun.setItemMeta(itemMeta);
-                    if (((Player) sender).getInventory().firstEmpty() != -1) {
-                        ((Player) sender).getInventory().addItem(shotgun);
-                    } else {
-                        ((Player) sender).getWorld().dropItemNaturally(((Player) sender).getLocation(), shotgun);
+        } else if (cmd.getName().equalsIgnoreCase("gun")) {
+            if (sender instanceof Player) {
+                if (sender.hasPermission("guns") || sender.isOp()) {
+                    if (args.length > 0) {
+                        StringBuilder sb = new StringBuilder();
+                        for(int i = 0; i < args.length-1; i++){
+                            sb.append(args[i]).append(' ');
+                        }
+                        sb.append(args[args.length-1]);
+                        String name = sb.toString().toLowerCase();
+                        if(Gun.guns.containsKey(name)){
+                            ItemStack gun = Gun.getGun(name);
+                            if (((Player) sender).getInventory().firstEmpty() != -1) {
+                                ((Player) sender).getInventory().addItem(gun);
+                            } else {
+                                ((Player) sender).getWorld().dropItemNaturally(((Player) sender).getLocation(), gun);
+                            }
+                        } else {
+                            sender.sendMessage(ChatColor.DARK_RED + "Unknown gun \"" + name + "\"" + ChatColor.RESET);
+                        }
                     }
+                } else {
+                    sender.sendMessage(ChatColor.DARK_RED + "You do not have permission to use this command!" + ChatColor.RESET);
                 }
             }
-        } else if (cmd.getName().equalsIgnoreCase("sniper")) {
-            if (sender.isOp()) {
-                if (sender instanceof Player) {
-                    ItemStack sniper = new ItemStack(Material.STICK, 1);
-                    ItemMeta itemMeta = sniper.getItemMeta();
-                    List<String> itemLore = new ArrayList<>();
-                    
-                    itemLore.add(ChatColor.WHITE + "Fire rate: " + 60/(Sniper.cooldown / 20) + " rpm" + ChatColor.RESET);
-                    itemLore.add(ChatColor.WHITE + "Damage: " + Sniper.damage/2 + ChatColor.RED + " ❤" + ChatColor.RESET);
-                    itemLore.add(ChatColor.WHITE + "Velocity: " + Sniper.velocity + " m/s" + ChatColor.RESET);
-                    itemLore.add(ChatColor.GRAY + "Shoots big stuff" + ChatColor.RESET);
-
-                    itemMeta.setLore(itemLore);
-                    itemMeta.setDisplayName(ChatColor.GOLD + "Sniper" + ChatColor.RESET);
-                    PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
-                    pdc.set(Events.i_stickGun, PersistentDataType.INTEGER, Events.SNIPER);
-                    pdc.set(i_stickGunUUID, PersistentDataType.STRING, UUID.randomUUID().toString());
-                    sniper.setItemMeta(itemMeta);
-                    if (((Player) sender).getInventory().firstEmpty() != -1) {
-                        ((Player) sender).getInventory().addItem(sniper);
-                    } else {
-                        ((Player) sender).getWorld().dropItemNaturally(((Player) sender).getLocation(), sniper);
-                    }
-                }
-            }
-        } else if (cmd.getName().equalsIgnoreCase("assaultrifle")) {
-            if (sender.isOp()) {
-                if (sender instanceof Player) {
-                    ItemStack ar = new ItemStack(Material.STICK, 1);
-                    ItemMeta itemMeta = ar.getItemMeta();
-                    List<String> itemLore = new ArrayList<>();
-                    
-                    itemLore.add(ChatColor.WHITE + "Fire rate: " + 60/(AssaultRifle.cooldown / 20) + " rpm" + ChatColor.RESET);
-                    itemLore.add(ChatColor.WHITE + "Damage: " + AssaultRifle.damage/2 + ChatColor.RED + " ❤" + ChatColor.RESET);
-                    itemLore.add(ChatColor.WHITE + "Velocity: " + AssaultRifle.velocity + " m/s" + ChatColor.RESET);
-                    itemLore.add(ChatColor.GRAY + "Shoots medium stuff but fast" + ChatColor.RESET);
-
-                    itemMeta.setLore(itemLore);
-                    itemMeta.setDisplayName(ChatColor.GOLD + "Assault Rifle" + ChatColor.RESET);
-                    PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
-                    pdc.set(Events.i_stickGun, PersistentDataType.INTEGER, Events.ASSAULT_RIFLE);
-                    pdc.set(i_stickGunUUID, PersistentDataType.STRING, UUID.randomUUID().toString());
-                    ar.setItemMeta(itemMeta);
-                    if (((Player) sender).getInventory().firstEmpty() != -1) {
-                        ((Player) sender).getInventory().addItem(ar);
-                    } else {
-                        ((Player) sender).getWorld().dropItemNaturally(((Player) sender).getLocation(), ar);
-                    }
-                }
-            }
-        } else if (cmd.getName().equalsIgnoreCase("rocketlauncher")) {
-            if (sender.isOp()) {
-                if (sender instanceof Player) {
-                    ItemStack ar = new ItemStack(Material.STICK, 1);
-                    ItemMeta itemMeta = ar.getItemMeta();
-                    List<String> itemLore = new ArrayList<>();
-                    
-                    itemLore.add(ChatColor.WHITE + "Fire rate: " + 60/(AT4.cooldown / 20) + " rpm" + ChatColor.RESET);
-                    itemLore.add(ChatColor.WHITE + "Damage: " + AT4.damage/2 + ChatColor.RED + " ❤" + ChatColor.RESET);
-                    itemLore.add(ChatColor.WHITE + "Velocity: " + AT4.velocity + " m/s" + ChatColor.RESET);
-                    itemLore.add(ChatColor.GRAY + "Shoots explody stuff but slow" + ChatColor.RESET);
-
-                    itemMeta.setLore(itemLore);
-                    itemMeta.setDisplayName(ChatColor.GOLD + "Rocket Launcher" + ChatColor.RESET);
-                    PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
-                    pdc.set(Events.i_stickGun, PersistentDataType.INTEGER, Events.ROCKET_LAUNCHER);
-                    pdc.set(i_stickGunUUID, PersistentDataType.STRING, UUID.randomUUID().toString());
-                    ar.setItemMeta(itemMeta);
-                    if (((Player) sender).getInventory().firstEmpty() != -1) {
-                        ((Player) sender).getInventory().addItem(ar);
-                    } else {
-                        ((Player) sender).getWorld().dropItemNaturally(((Player) sender).getLocation(), ar);
-                    }
-                }
-            }
+        } else if (cmd.getName().equalsIgnoreCase("purgeShots")) {
+            int[] purged = Gun.purgeShots();
+            sender.sendMessage("Purged " + purged[0] + " shots (" + purged[1] + " bullets)");
         }
         return true;
     }
-
 }
