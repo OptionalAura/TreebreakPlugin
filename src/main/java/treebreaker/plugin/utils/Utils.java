@@ -1,17 +1,31 @@
+/*
+ * Copyright (C) 2021 Daniel Allen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package main.java.treebreaker.plugin.utils;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.util.Vector;
 
-/*
-    @author Daniel Allen
-    25-Nov-2019
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ *
+ * @author Daniel Allen
  */
 public class Utils {
 
@@ -132,7 +146,7 @@ public class Utils {
     /**
      * Gets a string between two substrings of a larger string.
      * <br>
-     * 
+     *
      * <b>Note:</b> {@code end} will only be searched for from the index of
      * {@code start + start.length()}
      *
@@ -174,19 +188,16 @@ public class Utils {
         //idrk why I made this method
         return new Time(millis);
     }
-    
-    public static boolean startsWithIgnoreCase(String full, String test){
-        return (full == null) != (test == null) ? false :
-                full == null ? false :
-                test.length() > full.length() ? false :
-                full.substring(0, test.length()).equalsIgnoreCase(test);
+
+    public static boolean startsWithIgnoreCase(String full, String test) {
+        return (full == null) == (test == null) && full != null && test.length() <= full.length() && full.substring(0, test.length()).equalsIgnoreCase(test);
     }
     public static final ArrayList<Enchantment> enchList = new ArrayList<>();
     public static final ArrayList<Enchantment> restrictedEnchantments = new ArrayList<>();
     public static Comparator enchSorterByLevel;
     private final static TreeMap<Integer, String> romanMap = new TreeMap<Integer, String>();
 
-    static{
+    static {
         //what enchantments can only be level 1
         restrictedEnchantments.add(Enchantment.WATER_WORKER);
         restrictedEnchantments.add(Enchantment.CHANNELING);
@@ -258,27 +269,30 @@ public class Utils {
         }
         return romanMap.get(l) + intToRomanNumeral(in - l);
     }
-    public static int romanNumeralToInt(String rn){
-        if(rn == null)
+
+    public static int romanNumeralToInt(String rn) {
+        if (rn == null) {
             return 0;
-        if(rn.isEmpty())
+        }
+        if (rn.isEmpty()) {
             return 0;
+        }
         int value = 0;
         int pre = 0;
         Set<Entry<Integer, String>> keyVals = romanMap.entrySet();
-        for(int i = rn.length()-1; i >= 0; i--){
+        for (int i = rn.length() - 1; i >= 0; i--) {
             int curValue = 0;
-            for(Entry<Integer, String> ent : keyVals){
-                if(rn.charAt(i) == ent.getValue().toCharArray()[0]){
+            for (Entry<Integer, String> ent : keyVals) {
+                if (rn.charAt(i) == ent.getValue().toCharArray()[0]) {
                     curValue = ent.getKey();
                 }
             }
-            if(i == rn.length()-1){
+            if (i == rn.length() - 1) {
                 value += curValue;
-            }else{
-                if(curValue < pre){
+            } else {
+                if (curValue < pre) {
                     value -= curValue;
-                }else{
+                } else {
                     value += curValue;
                 }
             }
@@ -287,11 +301,37 @@ public class Utils {
 
         return value;
     }
-    /*
-    check if next char is '
-        if it is, check the next char
-        if the next ch
-    */
+
+    public static Vector randomizeDirection(Vector in, double randomness) {
+
+        if (randomness == 0) {
+            return in;
+        }
+        double theta = Math.random() * Math.PI * 2;
+        double v = Math.random();
+        double phi = Math.acos((2 * v) - 1);
+        double radius = Math.cbrt(Math.random());
+        double xDif = radius * Math.sin(phi) * Math.cos(theta);
+        double yDif = radius * Math.sin(phi) * Math.sin(theta);
+        double zDif = radius * Math.cos(phi);
+        return new Vector(in.getX() + xDif * randomness, in.getY() + yDif * randomness, in.getZ() + zDif * randomness);
+
+    }
+    public static Vector randomizeDirectionFast(Vector in, double randomness){
+        //This has a terrible worst-case scenario but is on average much faster than the above. Seems to be less uniform.
+        if (randomness == 0 || in == null) {
+            return in;
+        }
+
+        double xDif = (Math.random() - 0.5) * 2;
+        double yDif = (Math.random() - 0.5) * 2;
+        double zDif = (Math.random() - 0.5) * 2;
+        if (xDif * xDif + yDif * yDif + zDif * zDif < 1) {
+            return randomizeDirectionFast(in, randomness);
+        } else {
+            return new Vector(in.getX() + xDif * randomness, in.getY() + yDif * randomness, in.getZ() + zDif * randomness);
+        }
+    }
     public static String enchantmentLevelPrefix = "§r§9 ";
     public static String enchantmentNamePrefix = "§r§a";
 }

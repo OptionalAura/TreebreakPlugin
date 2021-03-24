@@ -1,32 +1,39 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2021 Daniel Allen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package main.java.treebreaker.plugin.features.Guns;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import static main.java.treebreaker.plugin.features.Guns.Gun.shots;
-import static main.java.treebreaker.plugin.features.Guns.Gun.tickCount;
 import main.java.treebreaker.plugin.utils.Utils;
-import static main.java.treebreaker.plugin.utils.Utils.getProperty;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static main.java.treebreaker.plugin.utils.Utils.getProperty;
+
 /**
  *
- * @author dsato
+ * @author Daniel Allen
  */
 public class AT4 extends Gun {
 
@@ -63,7 +70,7 @@ public class AT4 extends Gun {
             Double power = Utils.getProperty("guns." + getName() + ".blastPower", 5d);
             Rocket p = new Rocket(newPos, dir, getProperty("guns." + getName() + ".damage", getDefaultFireRate()), shooter, shot, 25, tracer, power.floatValue());
             shot.add(p);
-            shots.add(shot);
+            addShot(shot);
         }
     }
 

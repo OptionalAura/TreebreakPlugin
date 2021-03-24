@@ -1,21 +1,22 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2021 Daniel Allen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package main.java.treebreaker.plugin.features.Guns;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import main.java.treebreaker.plugin.misc.Events;
-import static main.java.treebreaker.plugin.misc.Events.i_stickGunHashCode;
-import static main.java.treebreaker.plugin.misc.Events.i_stickGunUUID;
-import static main.java.treebreaker.plugin.utils.Utils.getProperty;
-import static main.java.treebreaker.plugin.utils.Utils.setProperty;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -25,21 +26,31 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static main.java.treebreaker.plugin.misc.Events.i_stickGunHashCode;
+import static main.java.treebreaker.plugin.misc.Events.i_stickGunUUID;
+import static main.java.treebreaker.plugin.utils.Utils.getProperty;
+import static main.java.treebreaker.plugin.utils.Utils.setProperty;
+
 /**
  *
- * @author dsato
+ * @author Daniel Allen
  */
 public abstract class Gun {
 
     protected static final List<Shot> shotsBackend = new ArrayList<>();
-    protected static final List<Shot> shots = Collections.synchronizedList(shotsBackend);
+    private static final List<Shot> shots = Collections.synchronizedList(shotsBackend);
     protected static int tickCount = 0;
     protected final HashMap<String, Object> customProperties = new HashMap<>();
     public static final ConcurrentHashMap<String, Object> tags = new ConcurrentHashMap<>();
     public static final HashMap<String, Gun> guns = new HashMap<>();
 
     public static int hash;
-    
+    public static void addShot(Shot s){
+        shots.add(s);
+    }
     public static final int[] purgeShots(){
         int before = shots.size();
         int bullets = 0;
@@ -103,23 +114,6 @@ public abstract class Gun {
 
     public abstract void shoot(Player shooter, ItemStack item, String uuid);
 
-    public static int getGunType(String name) {
-        switch (name.toLowerCase()) {
-            case "at4":
-                return Events.ROCKET_LAUNCHER;
-            case "sniper":
-                return Events.SNIPER;
-            case "shotgun":
-                return Events.SHOTGUN;
-            case "assault rifle":
-                return Events.ASSAULT_RIFLE;
-            case "mortar":
-                return Events.MORTAR;
-            default:
-                return Events.OTHER;
-        }
-    }
-
     public static final ItemStack getGun(String name) {
         Gun gun = guns.get(name.toLowerCase());
         if (gun != null) {
@@ -129,7 +123,7 @@ public abstract class Gun {
             itemMeta.setLore(itemLore);
             itemMeta.setDisplayName(ChatColor.GOLD + gun.getName() + ChatColor.RESET);
             PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
-            pdc.set(Events.i_stickGun, PersistentDataType.INTEGER, getGunType(gun.getName()));
+            pdc.set(Events.i_stickGun, PersistentDataType.STRING, gun.getName().toLowerCase());
             pdc.set(i_stickGunUUID, PersistentDataType.STRING, UUID.randomUUID().toString());
             pdc.set(i_stickGunHashCode, PersistentDataType.INTEGER, gun.versionCode());
             ar.setItemMeta(itemMeta);
@@ -146,8 +140,9 @@ public abstract class Gun {
         guns.put("at4", new AT4());
         guns.put("sniper", new Sniper());
         guns.put("shotgun", new Shotgun());
-        guns.put("assault rifle", new AssaultRifle());
+        guns.put("ar", new AssaultRifle());
         guns.put("mortar", new Mortar());
+        guns.put("hellstorm", new Hellstorm());
         for (Gun gun : guns.values()) {
             setProperty("guns." + gun.getName() + ".velocity", settingsConfig.getDouble("guns." + gun.getName() + ".velocity", gun.getDefaultVelocity()));
             setProperty("guns." + gun.getName() + ".firerate", settingsConfig.getDouble("guns." + gun.getName() + ".firerate", gun.getDefaultFireRate()));

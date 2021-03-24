@@ -1,13 +1,21 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2021 Daniel Allen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package main.java.treebreaker.plugin.features;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Comparator;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -15,12 +23,16 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Comparator;
+
 /**
  *
- * @author dsato
+ * @author Daniel Allen
  */
 public class MobCounter {
-    private static Comparator<AbstractMap.SimpleEntry<EntityType, Integer>> MOB_COUNT_COMPARATOR = new Comparator<AbstractMap.SimpleEntry<EntityType, Integer>>(){
+    private static final Comparator<AbstractMap.SimpleEntry<EntityType, Integer>> MOB_COUNT_COMPARATOR = new Comparator<AbstractMap.SimpleEntry<EntityType, Integer>>(){
         @Override
         public int compare(AbstractMap.SimpleEntry<EntityType, Integer> o1, AbstractMap.SimpleEntry<EntityType, Integer> o2) {
             

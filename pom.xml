@@ -16,11 +16,12 @@
         <dependency>
                <groupId>org.spigotmc</groupId>
                <artifactId>spigot-api</artifactId>
-               <version>1.16.1-R0.1-SNAPSHOT</version>
+               <version>1.16.5-R0.1-SNAPSHOT</version>
                <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>
+        <finalName>TREEBREAK</finalName>
         <sourceDirectory>src</sourceDirectory>
         <resources>
             <resource>
@@ -37,7 +38,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                    <finalName>TREEBREAK</finalName>
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>

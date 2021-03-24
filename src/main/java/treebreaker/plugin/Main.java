@@ -1,30 +1,29 @@
+/*
+ * Copyright (C) 2021 Daniel Allen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package main.java.treebreaker.plugin;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import main.java.treebreaker.plugin.features.ColoredNames;
-import main.java.treebreaker.plugin.features.DeathMarkers;
-import main.java.treebreaker.plugin.features.AllEnchant;
-import main.java.treebreaker.plugin.features.EZEnchant;
+import main.java.treebreaker.plugin.features.*;
 import main.java.treebreaker.plugin.features.Guns.Gun;
-import main.java.treebreaker.plugin.features.MobAutofill;
-import main.java.treebreaker.plugin.features.MobCounter;
-import main.java.treebreaker.plugin.features.SilkSpawners;
-import main.java.treebreaker.plugin.features.SleepFixes;
-import main.java.treebreaker.plugin.features.TreeBreaker;
 import main.java.treebreaker.plugin.misc.ActionBarAPI;
 import main.java.treebreaker.plugin.misc.Events;
 import main.java.treebreaker.plugin.misc.Permissions;
 import main.java.treebreaker.plugin.misc.UpdateNotifier;
 import main.java.treebreaker.plugin.utils.SetPropertyAutofill;
 import main.java.treebreaker.plugin.utils.Utils;
-import static main.java.treebreaker.plugin.utils.Utils.getProperty;
-import static main.java.treebreaker.plugin.utils.Utils.setProperty;
 import main.java.treebreaker.plugin.utils.Version;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -43,9 +42,20 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 
-/*
-    @author Daniel Allen
-    13-Aug-2019
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static main.java.treebreaker.plugin.utils.Utils.getProperty;
+import static main.java.treebreaker.plugin.utils.Utils.setProperty;
+
+/**
+ *
+ * @author Daniel Allen
  */
 public class Main extends JavaPlugin implements Listener {
 
@@ -87,6 +97,10 @@ public class Main extends JavaPlugin implements Listener {
         settingsConfig.set("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, getProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
         
         settingsConfig.set("world.physics.gravity", getProperty("world.physics.gravity", -9.81));
+        settingsConfig.set("world.physics.explosions.vectorExplosions", getProperty("world.physics.explosions.vectorExplosions", true));
+        settingsConfig.set("world.physics.explosions.vanillaExplosions", getProperty("world.physics.explosions.vanillaExplosions", true));
+        settingsConfig.set("world.physics.explosions.explosionRandomness", getProperty("world.physics.explosions.explosionRandomness", 0.3));
+        
         Gun.saveSettings(settingsConfig);
     }
 
@@ -112,6 +126,9 @@ public class Main extends JavaPlugin implements Listener {
         setProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, settingsConfig.getBoolean("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
 
         setProperty("world.physics.gravity", settingsConfig.getDouble("world.physics.gravity", -9.81));
+        setProperty("world.physics.explosions.vectorExplosions", settingsConfig.getBoolean("world.physics.explosions.vectorExplosions", true));
+        setProperty("world.physics.explosions.vanillaExplosions", settingsConfig.getBoolean("world.physics.explosions.vanillaExplosions", true));
+        setProperty("world.physics.explosions.explosionRandomness", settingsConfig.getDouble("world.physics.explosions.explosionRandomness", 0.3));
         
         Gun.loadSettings(settingsConfig);
     }

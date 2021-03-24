@@ -1,29 +1,37 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2021 Daniel Allen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package main.java.treebreaker.plugin.features.Guns;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import static main.java.treebreaker.plugin.features.Guns.Gun.tickCount;
-import static main.java.treebreaker.plugin.utils.Utils.getProperty;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static main.java.treebreaker.plugin.utils.Utils.getProperty;
+
 /**
  *
- * @author dsato
+ * @author Daniel Allen
  */
 public class AssaultRifle extends Gun {
 
@@ -50,7 +58,7 @@ public class AssaultRifle extends Gun {
 
     @Override
     public String getName() {
-        return "Assault Rifle";
+        return "AR";
     }
     public static final Particle.DustOptions tracer = new Particle.DustOptions(Color.fromRGB(200, 200, 200), 1);
     @Override
@@ -78,7 +86,7 @@ public class AssaultRifle extends Gun {
             newPos.getWorld().spawnParticle(Particle.REDSTONE, newPos.clone().add(newPos.getDirection().clone().multiply(0.2)), 3, 0, 0, 0, dust);
             Projectile p = new Projectile(newPos, dir, getProperty("guns." + getName() + ".damage", getDefaultFireRate()), shooter, shot, 1, tracer);
             shot.add(p);
-            shots.add(shot);
+            addShot(shot);
         }
     }
 @Override

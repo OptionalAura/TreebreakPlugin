@@ -1,12 +1,21 @@
+/*
+ * Copyright (C) 2021 Daniel Allen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package main.java.treebreaker.plugin.features;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import static main.java.treebreaker.plugin.Main.thisPlugin;
-import static main.java.treebreaker.plugin.utils.Utils.getProperty;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -25,18 +34,23 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-/*
-    @author Daniel Allen
-    14-Dec-2019
+import java.util.*;
+
+import static main.java.treebreaker.plugin.Main.thisPlugin;
+import static main.java.treebreaker.plugin.utils.Utils.getProperty;
+
+/**
+ *
+ * @author Daniel Allen
  */
 public class SilkSpawners implements Listener {
 
     public static final String SILK_SPAWNERS_ENABLED_TAG = "drop_spawners",
             DROP_SPAWNERS_IN_CREATIVE_TAG = "drop_spawners_in_creative";
 
-    private NamespacedKey spawnTypeKey = new NamespacedKey(thisPlugin, "mob_spawner_type");
-    private NamespacedKey spawnCountKey = new NamespacedKey(thisPlugin, "mob_spawner_count");
-    private NamespacedKey spawnRangeKey = new NamespacedKey(thisPlugin, "mob_spawner_range");
+    private final NamespacedKey spawnTypeKey = new NamespacedKey(thisPlugin, "mob_spawner_type");
+    private final NamespacedKey spawnCountKey = new NamespacedKey(thisPlugin, "mob_spawner_count");
+    private final NamespacedKey spawnRangeKey = new NamespacedKey(thisPlugin, "mob_spawner_range");
 
     @EventHandler(priority = EventPriority.HIGH)
     public void blockBreak(org.bukkit.event.block.BlockBreakEvent event) {

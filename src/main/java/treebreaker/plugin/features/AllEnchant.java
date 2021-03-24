@@ -1,11 +1,22 @@
+/*
+ * Copyright (C) 2021 Daniel Allen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package main.java.treebreaker.plugin.features;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import main.java.treebreaker.plugin.misc.Permissions;
-import static main.java.treebreaker.plugin.utils.Utils.*;
-
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -16,9 +27,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-/*
-    @author Daniel Allen
-    14-Aug-2019
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import static main.java.treebreaker.plugin.utils.Utils.*;
+
+/**
+ *
+ * @author Daniel Allen
  */
 public class AllEnchant {
 
@@ -30,15 +47,15 @@ public class AllEnchant {
             return true;
         }
         if (args.length < 1 || args.length > 2) {
-            ((Player) player).sendMessage("§c:Error: §4Incorrect format. Use §a/allEnchant <level|\"max\"> [unsafe?] ");
+            player.sendMessage("§c:Error: §4Incorrect format. Use §a/allEnchant <level|\"max\"> [unsafe?] ");
             return true;
         }
         ItemStack holding = ((Player) player).getInventory().getItemInMainHand();
         if (holding.getType() == Material.AIR) {
-            ((Player) player).sendMessage("§cError: §4You must be holding an item to perform this command");
+            player.sendMessage("§cError: §4You must be holding an item to perform this command");
             return false;
         }
-        boolean allowUnsafe = (args.length == 2) ? args[1].equalsIgnoreCase("true") : false;
+        boolean allowUnsafe = args.length == 2 && args[1].equalsIgnoreCase("true");
         boolean maxEnchLimit = false;
         int lvl = 1;
         if (args[0].equalsIgnoreCase("max")) {
@@ -50,7 +67,7 @@ public class AllEnchant {
                     throw new NumberFormatException("Level must be between 0 and 32 767 (You used \"" + args[0] + "\"");
                 }
             } catch (Exception ex) {
-                ((Player) player).sendMessage("§c§lError: §r§4" + ex.getMessage());
+                player.sendMessage("§c§lError: §r§4" + ex.getMessage());
                 return false;
             }
         }

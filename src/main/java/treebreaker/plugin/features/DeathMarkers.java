@@ -1,16 +1,25 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2021 Daniel Allen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package main.java.treebreaker.plugin.features;
 
-import java.util.concurrent.ConcurrentHashMap;
 import main.java.treebreaker.plugin.Main;
 import main.java.treebreaker.plugin.misc.ActionBarAPI;
 import main.java.treebreaker.plugin.utils.Time;
 import main.java.treebreaker.plugin.utils.Utils;
-import static main.java.treebreaker.plugin.utils.Utils.getProperty;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -24,6 +33,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
+
+import java.util.concurrent.ConcurrentHashMap;
+
+import static main.java.treebreaker.plugin.utils.Utils.getProperty;
 
 /**
  *
@@ -41,11 +54,11 @@ public class DeathMarkers implements Listener {
             switch (cmd.getName().toLowerCase()) {
                 case "deathlocation":
 
-                    if (deathTimerMap.containsKey((Player) sender)) {
-                        Object inMap = targetCompassMap.get((Player)sender);
+                    if (deathTimerMap.containsKey(sender)) {
+                        Object inMap = targetCompassMap.get(sender);
                         if (inMap instanceof Location) {
                             long timeRemaining = getTicksRemainingBeforeItemsDespawn((Player) sender);
-                            Location loc = (Location) targetCompassMap.get((Player) sender);
+                            Location loc = (Location) targetCompassMap.get(sender);
                             if (timeRemaining <= 0) {
                                 if (loc != null) {
                                     sendDeathLocationToPlayer((Player) sender);
@@ -77,8 +90,8 @@ public class DeathMarkers implements Listener {
         return false;
     }
 
-    private static ConcurrentHashMap<Player, Object> targetCompassMap = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<Player, Long> deathTimerMap = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Player, Object> targetCompassMap = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Player, Long> deathTimerMap = new ConcurrentHashMap<>();
 
     private static long getTicksRemainingBeforeItemsDespawn(Player player) {
         Long deathTime = deathTimerMap.get(player);
