@@ -1,18 +1,15 @@
 /*
  * Copyright (C) 2021 Daniel Allen
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the
+ * GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package main.java.treebreaker.plugin.utils;
 
@@ -88,15 +85,20 @@ public class Utils {
         return data.keySet();
     }
 
-    public static String joinList(List<String> list) {
-        //could use String.join or Stream but I found this approach to consistantly be 150-500ns faster
-        StringBuilder sb = new StringBuilder(list.size());
-        for (int z = 0; z < list.size() - 1; z++) {
-            sb.append(list.get(z));
-            sb.append(',').append(' ');
+    public static String joinList(Collection list) {
+        if (list.size() > 0) {
+            StringBuilder sb = new StringBuilder(list.size());
+            sb.append('[');
+            Iterator it = list.iterator();
+            for (int z = 0; z < list.size() - 1; z++) {
+                sb.append(it.next());
+                sb.append(',').append(' ');
+            }
+            sb.append(it.next());
+            sb.append(']');
+            return sb.toString();
         }
-        sb.append(list.get(list.size() - 1));
-        return sb.toString();
+        return "[]";
     }
 
     /**

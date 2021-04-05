@@ -1,20 +1,17 @@
 /*
  * Copyright (C) 2021 Daniel Allen
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the
+ * GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package main.java.treebreaker.plugin.features.Guns;
+package main.java.treebreaker.plugin.features.guns;
 
 import main.java.treebreaker.plugin.utils.Utils;
 import org.bukkit.*;
@@ -33,12 +30,16 @@ import static main.java.treebreaker.plugin.utils.Utils.getProperty;
 import static main.java.treebreaker.plugin.utils.Utils.setProperty;
 
 /**
- *
  * @author Daniel Allen
  */
 public class Shotgun extends Gun {
 
-    private static final ConcurrentHashMap<String, Integer> lastShot = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Long> lastShot = new ConcurrentHashMap<>();
+    private static final Shotgun instance = new Shotgun();
+
+    public static synchronized Shotgun getInstance() {
+        return instance;// != null ? instance : new Shotgun();
+    }
 
     @Override
     public double getDefaultVelocity() {
@@ -68,7 +69,7 @@ public class Shotgun extends Gun {
     public void shoot(Player shooter, ItemStack item, String uuid) {
         if (!lastShot.containsKey(uuid) || tickCount - lastShot.get(uuid) > getProperty("guns." + getName() + ".firerate", getDefaultFireRate())) {
             lastShot.put(uuid, tickCount);
-            Location playerPos = shooter.getEyeLocation();
+            Location playerPos = shooter.getEyeLocation().subtract(0, 1, 0);
             int count = getProperty("guns." + getName() + ".count", getDefaultCount()).intValue();
             Shot shot = new Shot(count);
             playerPos.getWorld().playSound(playerPos, Sound.ENTITY_GENERIC_EXPLODE, 1, 1);
@@ -84,11 +85,11 @@ public class Shotgun extends Gun {
                 }
                 dir.add(playerVel);
                 Particle.DustOptions dust = new Particle.DustOptions(Color.fromRGB(255, 226, 163), 1);
-                newPos.getWorld().spawnParticle(Particle.REDSTONE, newPos.clone().add(newPos.getDirection().clone().multiply(0.5)), 5, 0.1, 0.1, 0.1, dust);
+                newPos.getWorld().spawnParticle(Particle.REDSTONE, newPos.clone().add(newPos.getDirection().clone().multiply(0.5)), 2, 0.1, 0.1, 0.1, dust);
                 Projectile p = new Projectile(newPos, dir, getProperty("guns." + getName() + ".damage", getDefaultDamage()), shooter, shot);
                 shot.add(p);
             }
-            addShot(shot);
+            Gun.addShot(shot);
         }
     }
 
@@ -133,6 +134,7 @@ public class Shotgun extends Gun {
             settingsConfig.set(key, getProperty(key, customProperties.get(key)));
         }
     }
+
     @Override
     public int versionCode() {
         int result = 17;

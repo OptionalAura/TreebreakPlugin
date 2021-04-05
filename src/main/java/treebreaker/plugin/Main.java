@@ -1,23 +1,20 @@
 /*
  * Copyright (C) 2021 Daniel Allen
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the
+ * GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package main.java.treebreaker.plugin;
 
 import main.java.treebreaker.plugin.features.*;
-import main.java.treebreaker.plugin.features.Guns.Gun;
+import main.java.treebreaker.plugin.features.guns.Gun;
 import main.java.treebreaker.plugin.misc.ActionBarAPI;
 import main.java.treebreaker.plugin.misc.Events;
 import main.java.treebreaker.plugin.misc.Permissions;
@@ -95,12 +92,14 @@ public class Main extends JavaPlugin implements Listener {
         settingsConfig.set("deathmarkers." + DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, getProperty(DeathMarkers.DEATH_LOCATION_MESSAGE_TAG, true));
 
         settingsConfig.set("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, getProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
-        
+
         settingsConfig.set("world.physics.gravity", getProperty("world.physics.gravity", -9.81));
         settingsConfig.set("world.physics.explosions.vectorExplosions", getProperty("world.physics.explosions.vectorExplosions", true));
         settingsConfig.set("world.physics.explosions.vanillaExplosions", getProperty("world.physics.explosions.vanillaExplosions", true));
         settingsConfig.set("world.physics.explosions.explosionRandomness", getProperty("world.physics.explosions.explosionRandomness", 0.3));
-        
+
+        settingsConfig.set("server.drawShots", getProperty("server.drawShots", true));
+        settingsConfig.set("server.farShotsVisible", getProperty("server.farShotsVisible", false));
         Gun.saveSettings(settingsConfig);
     }
 
@@ -126,10 +125,12 @@ public class Main extends JavaPlugin implements Listener {
         setProperty(SleepFixes.ONE_SLEEPING_PLAYER_TAG, settingsConfig.getBoolean("sleeping." + SleepFixes.ONE_SLEEPING_PLAYER_TAG, true));
 
         setProperty("world.physics.gravity", settingsConfig.getDouble("world.physics.gravity", -9.81));
-        setProperty("world.physics.explosions.vectorExplosions", settingsConfig.getBoolean("world.physics.explosions.vectorExplosions", true));
-        setProperty("world.physics.explosions.vanillaExplosions", settingsConfig.getBoolean("world.physics.explosions.vanillaExplosions", true));
+        setProperty("world.physics.explosions.vectorExplosions", settingsConfig.getBoolean("world.physics.explosions.vectorExplosions", false));
+        setProperty("world.physics.explosions.vanillaExplosions", settingsConfig.getBoolean("world.physics.explosions.vanillaExplosions", false));
         setProperty("world.physics.explosions.explosionRandomness", settingsConfig.getDouble("world.physics.explosions.explosionRandomness", 0.3));
-        
+
+        setProperty("server.drawShots", settingsConfig.getBoolean("server.drawShots", true));
+        setProperty("server.farShotsVisible", settingsConfig.getBoolean("server.farShotsVisible", false));
         Gun.loadSettings(settingsConfig);
     }
 
@@ -198,7 +199,7 @@ public class Main extends JavaPlugin implements Listener {
         } catch (IOException | InvalidConfigurationException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        Gun.initGuns();
         loadSettings();
 
         saveSettings();
@@ -258,7 +259,7 @@ public class Main extends JavaPlugin implements Listener {
             }
         };
         tick = 0;
-        tickCounter.runTaskTimer(thisPlugin, 1, 1);
+        tickCounter.runTaskTimerAsynchronously(thisPlugin, 1, 1);
     }
 
     public void tick() {
@@ -378,6 +379,9 @@ public class Main extends JavaPlugin implements Listener {
                 } else {
                     sender.sendMessage(ChatColor.DARK_RED + "You do not have permission to use this command!" + ChatColor.RESET);
                 }
+            }
+            if (args.length == 0) {
+                sender.sendMessage("Available guns: " + Utils.joinList(Gun.guns.values()));
             }
         } else if (cmd.getName().equalsIgnoreCase("purgeShots")) {
             int[] purged = Gun.purgeShots();

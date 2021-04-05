@@ -1,25 +1,20 @@
 /*
  * Copyright (C) 2021 Daniel Allen
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the
+ * GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package main.java.treebreaker.plugin.features.Guns;
+package main.java.treebreaker.plugin.features.guns;
 
 import main.java.treebreaker.plugin.utils.Utils;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -31,20 +26,23 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static main.java.treebreaker.plugin.features.Guns.AT4.tracer;
 import static main.java.treebreaker.plugin.utils.Utils.getProperty;
 
 /**
- *
  * @author Daniel Allen
  */
 public class Mortar extends Gun implements Targeting {
+    public static final Particle.DustOptions tracer = new Particle.DustOptions(Color.fromRGB(80, 80, 80), 1);
+    private static final ConcurrentHashMap<String, Long> lastShot = new ConcurrentHashMap<>();
+    private static final Mortar instance = new Mortar();
 
-    private static final ConcurrentHashMap<String, Integer> lastShot = new ConcurrentHashMap<>();
+    public static Mortar getInstance() {
+        return instance;// != null ? instance : new Mortar();
+    }
 
-    public static double getAngleToHit(double vel, double dist, double y) {
+    public static double getAngleToHit(double vel, double dist, double height) {
         double g = getProperty("world.physics.gravity", -9.81d);
-        double plus = vel * vel + Math.sqrt(vel * vel * vel * vel - g * (g * dist * dist + 2 * y * vel * vel));
+        double plus = vel * vel + Math.sqrt(vel * vel * vel * vel - g * (g * dist * dist + 2 * height * vel * vel));
         return -(Math.atan(plus / (g * dist)));
     }
 
@@ -105,9 +103,9 @@ public class Mortar extends Gun implements Targeting {
                 Vector targetRelative = new Vector(target.getX() - shooter.getEyeLocation().getX(), 0, target.getZ() - shooter.getEyeLocation().getZ());
                 double dist = Math.sqrt(Math.pow(target.getX() - shooter.getEyeLocation().getX(), 2) + Math.pow(target.getZ() - shooter.getEyeLocation().getZ(), 2));
                 double vel = getChargeVelocity(dist);
-                Double angleY = getAngleToHit(vel, dist, target.getY() - shooter.getEyeLocation().getY());
-                if (!angleY.isNaN()) {
-                    Double angleXZ = Math.atan2(targetRelative.getX(), targetRelative.getZ());
+                double angleY = getAngleToHit(vel, dist, target.getY() - shooter.getEyeLocation().getY());
+                if (!Double.isNaN(angleY)) {
+                    double angleXZ = Math.atan2(targetRelative.getX(), targetRelative.getZ());
                     double y = vel * Math.sin(angleY);
                     double xz = vel * Math.cos(angleY);
                     double z = xz * Math.cos(angleXZ);
@@ -126,7 +124,7 @@ public class Mortar extends Gun implements Targeting {
                     Double power = Utils.getProperty("guns." + getName() + ".blastPower", 5d);
                     Rocket p = new Rocket(shooter.getEyeLocation(), dir, getProperty("guns." + getName() + ".damage", getDefaultDamage()), shooter, shot, 25, tracer, power.floatValue());
                     shot.add(p);
-                    addShot(shot);
+                    Gun.addShot(shot);
                     shooter.getLocation().getWorld().playSound(shooter.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 0.5f);
                     shooter.getLocation().getWorld().playSound(shooter.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1, 0.7f);
                 } else {

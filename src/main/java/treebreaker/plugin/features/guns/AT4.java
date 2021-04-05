@@ -1,20 +1,17 @@
 /*
  * Copyright (C) 2021 Daniel Allen
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the
+ * GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package main.java.treebreaker.plugin.features.Guns;
+package main.java.treebreaker.plugin.features.guns;
 
 import main.java.treebreaker.plugin.utils.Utils;
 import org.bukkit.*;
@@ -32,16 +29,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import static main.java.treebreaker.plugin.utils.Utils.getProperty;
 
 /**
- *
  * @author Daniel Allen
  */
 public class AT4 extends Gun {
 
-    private static final ConcurrentHashMap<String, Integer> lastShot = new ConcurrentHashMap<>();
     public static final Particle.DustOptions tracer = new Particle.DustOptions(Color.fromRGB(80, 80, 80), 1);
+    private static final ConcurrentHashMap<String, Long> lastShot = new ConcurrentHashMap<>();
+    private static final AT4 instance = new AT4();
 
-    public AT4() {
-
+    public static AT4 getInstance() {
+        return instance;// != null ? instance : new AT4();
     }
 
     @Override
@@ -70,7 +67,7 @@ public class AT4 extends Gun {
             Double power = Utils.getProperty("guns." + getName() + ".blastPower", 5d);
             Rocket p = new Rocket(newPos, dir, getProperty("guns." + getName() + ".damage", getDefaultFireRate()), shooter, shot, 25, tracer, power.floatValue());
             shot.add(p);
-            addShot(shot);
+            Gun.addShot(shot);
         }
     }
 

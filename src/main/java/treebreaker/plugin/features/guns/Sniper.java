@@ -1,20 +1,17 @@
 /*
  * Copyright (C) 2021 Daniel Allen
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the
+ * GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package main.java.treebreaker.plugin.features.Guns;
+package main.java.treebreaker.plugin.features.guns;
 
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -28,20 +25,25 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static main.java.treebreaker.plugin.utils.Utils.getProperty;
+
 /**
- *
  * @author Daniel Allen
  */
 public class Sniper extends Gun {
 
-    private static final ConcurrentHashMap<String, Integer> lastShot = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Long> lastShot = new ConcurrentHashMap<>();
     private static final Particle.DustOptions tracer = new Particle.DustOptions(Color.fromRGB(80, 80, 80), 1);
+    private static final Sniper instance = new Sniper();
+
+    public static synchronized Sniper getInstance() {
+        return instance;// != null ? instance : new Sniper();
+    }
 
     @Override
     public void shoot(Player shooter, ItemStack item, String uuid) {
         if (!lastShot.containsKey(uuid) || tickCount - lastShot.get(uuid) > getProperty("guns." + getName() + ".firerate", getDefaultFireRate())) {
             lastShot.put(uuid, tickCount);
-            Location playerPos = shooter.getEyeLocation();
+            Location playerPos = shooter.getEyeLocation().subtract(0, 1, 0);
             playerPos.getWorld().playSound(playerPos, Sound.ENTITY_GENERIC_EXPLODE, 1, 0.5f);
 
             Shot shot = new Shot(1);
@@ -55,14 +57,14 @@ public class Sniper extends Gun {
             newPos.setDirection(dir);
             dir.multiply(getProperty("guns." + getName() + ".velocity", getDefaultFireRate()));
             Vector playerVel = shooter.getVelocity().clone();
-            if(((Entity)shooter).isOnGround()){
+            if (((Entity) shooter).isOnGround()) {
                 playerVel.setY(0);
             }
             dir.add(playerVel);
             SniperBullet p = new SniperBullet(newPos, dir, getProperty("guns." + getName() + ".damage", getDefaultFireRate()), shooter, shot, 25, tracer);
             newPos.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, newPos.clone().add(newPos.getDirection().clone().multiply(0.2)), 1);
             shot.add(p);
-            addShot(shot);
+            Gun.addShot(shot);
         }
     }
 
@@ -91,6 +93,7 @@ public class Sniper extends Gun {
     void init(FileConfiguration settingsConfig) {
 
     }
+
     @Override
     void term(FileConfiguration settingsConfig) {
 
@@ -103,7 +106,7 @@ public class Sniper extends Gun {
 
     @Override
     public double getDefaultFireRate() {
-        return 20*3;
+        return 20 * 3;
     }
 
     @Override

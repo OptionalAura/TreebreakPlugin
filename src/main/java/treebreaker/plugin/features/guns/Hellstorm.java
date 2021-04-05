@@ -1,20 +1,17 @@
 /*
  * Copyright (C) 2021 Daniel Allen
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the
+ * GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package main.java.treebreaker.plugin.features.Guns;
+package main.java.treebreaker.plugin.features.guns;
 
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -32,14 +29,18 @@ import static main.java.treebreaker.plugin.utils.Utils.getProperty;
 import static main.java.treebreaker.plugin.utils.Utils.randomizeDirection;
 
 /**
- *
  * @author Daniel Allen
  */
-public class Hellstorm extends Mortar implements Targeting {
+public class Hellstorm extends Gun implements Targeting {
+    private static final Hellstorm instance = new Hellstorm();
 
-    private static final ConcurrentHashMap<String, Integer> lastShot = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Long> lastShot = new ConcurrentHashMap<>();
     private static final Particle.DustOptions tracer = new Particle.DustOptions(Color.fromRGB(80, 80, 80), 4);
     private static final Particle.DustOptions miniTracer = new Particle.DustOptions(Color.fromRGB(80, 80, 80), 1);
+
+    public static Hellstorm getInstance() {
+        return instance;// != null ? instance : new Hellstorm();
+    }
 
     public double getDefaultCount() {
         return 25;
@@ -78,6 +79,12 @@ public class Hellstorm extends Mortar implements Targeting {
         return 400;
     }
 
+    public static double getAngleToHit(double vel, double dist, double y) {
+        double g = getProperty("world.physics.gravity", -9.81d);
+        double plus = vel * vel + Math.sqrt(vel * vel * vel * vel - g * (g * dist * dist + 2 * y * vel * vel));
+        return -(Math.atan(plus / (g * dist)));
+    }
+
     @Override
     public void shoot(Player shooter, ItemStack item, String uuid) {
         if (!lastShot.containsKey(uuid) || tickCount - lastShot.get(uuid) > getProperty("guns." + getName() + ".firerate", getDefaultFireRate())) {
@@ -87,9 +94,9 @@ public class Hellstorm extends Mortar implements Targeting {
                 Vector targetRelative = new Vector(target.getX() - shooter.getEyeLocation().getX(), 0, target.getZ() - shooter.getEyeLocation().getZ());
                 double dist = Math.sqrt(Math.pow(target.getX() - shooter.getEyeLocation().getX(), 2) + Math.pow(target.getZ() - shooter.getEyeLocation().getZ(), 2));
                 double vel = getProperty("guns." + getName() + ".velocity", getDefaultVelocity());
-                Double angleY = getAngleToHit(vel, dist, target.getY() - shooter.getEyeLocation().getY());
-                if (!angleY.isNaN()) {
-                    Double angleXZ = Math.atan2(targetRelative.getX(), targetRelative.getZ());
+                double angleY = getAngleToHit(vel, dist, target.getY() - shooter.getEyeLocation().getY());
+                if (!Double.isNaN(angleY)) {
+                    double angleXZ = Math.atan2(targetRelative.getX(), targetRelative.getZ());
                     double y = vel * Math.sin(angleY);
                     double xz = vel * Math.cos(angleY);
                     double z = xz * Math.cos(angleXZ);
@@ -106,7 +113,7 @@ public class Hellstorm extends Mortar implements Targeting {
                     Rocket munition = new Rocket(null, null, 10, shooter, null, 1, miniTracer, getProperty("guns." + getName() + ".blastPower", getDefaultPower()).floatValue());
                     HellstormMunition p = new HellstormMunition(shooter.getEyeLocation(), dir, getProperty("guns." + getName() + ".damage", getDefaultDamage()), shooter, shot, 25, tracer, getProperty("guns." + getName() + ".count", getDefaultCount()).intValue(), getProperty("guns." + getName() + ".height", getDefaultHeight()), getProperty("guns." + getName() + ".munitionSpread", getDefaultSpread()), munition);
                     shot.add(p);
-                    addShot(shot);
+                    Gun.addShot(shot);
                     shooter.getLocation().getWorld().playSound(shooter.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 0.5f);
                     shooter.getLocation().getWorld().playSound(shooter.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 2, 0.4f);
                 } else {
@@ -117,7 +124,6 @@ public class Hellstorm extends Mortar implements Targeting {
             }
         }
     }
-
     @Override
     void init(FileConfiguration settingsConfig) {
         addProperty(settingsConfig, "count", getDefaultCount());
@@ -162,5 +168,10 @@ public class Hellstorm extends Mortar implements Targeting {
         itemLore.add(ChatColor.WHITE + "Blast Power: " + getProperty("guns." + getName() + ".blastPower", getDefaultPower()) + ChatColor.RESET);
         itemLore.add(ChatColor.GRAY + "Shoots a lot of explody stuff out of another explody thing" + ChatColor.RESET);
         return itemLore;
+    }
+
+    @Override
+    public void setTarget(String UUID, Location target) {
+        targets.put(UUID, target);
     }
 }
